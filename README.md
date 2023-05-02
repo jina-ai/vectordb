@@ -19,22 +19,76 @@
 
 - Serverless capacity: Databases can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed. # TODO: Clarify
 
-Getting Started
+## Getting Started with prebuilt databases
 
 To get started with Vector Database, simply follow these easy steps:
 
-Install `any-vector-db`: ```pip install any-vector-db`
-Create your own database: from vector_database import VectorDatabase
-Customize your database as needed: db = VectorDatabase()
-Start using your database: db.insert(record), db.get(record_id), etc.
-Roadmap
+- Install `any-vector-db`: 
+
+```pip install any-vector-db```
+
+- Use any of the pre-built databases as a Python class: 
+
+```python
+from any_vector_db import HNSWLibTextDatabase
+from docarray import DocList
+from docarray.documents import TextDoc
+
+db = HNSWLibTextDatabased(data_path='./hnwslib_path')
+
+db.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128))for i in range(1000)]))
+
+results = db.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
+```
+
+- Serve the database as a service
+
+```python
+
+from any_vector_db import HNSWLibTextDatabase
+from docarray import DocList
+from docarray.documents import TextDoc
+
+db = HNSWLibTextDatabased(data_path='./hnwslib_path')
+
+with db.serve(port=12345) as service:
+   service.block()
+```
+
+- Interact with the database through a client on a similar way as previously:
+
+```python
+from any_vector_db import Client
+
+c = Client(port=12345)
+
+c.index()
+c.search()
+```
+
+
+## Customize your Database
+
+TODO: Explain how to write your own implementation
+
+## Scale your own Database, add replication and sharding
+
+TODO: Explain how and why you would add replicas and shards
+
+## Deploy it to the cloud
+
+TODO: Explain how and why you would deploy to JCloud.
+
+
+## Roadmap
 We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
 Serverless capacity: We're working on adding serverless capacity to Vector Database, making it even easier to deploy in the cloud.
-More customization options: We want to give you even more control over your database, so we're working on adding more customization options.
-Improved performance: We're constantly working to make Vector Database faster and more efficient, so you can get more done in less time.
+More pre-built databases: We want to give you even more pre-built solutions for your database.
+More deploying options: We want to enable deploying Vector Databases on different cloud with more options
 Support
-If you need any help with Vector Database, don't hesitate to reach out to our friendly support team. We're always here to help you get the most out of your database.
+
+If you need any help with `any-vector-db`, or you are interested on using it and have some requests to make it fit your own need. don't hesitate to reach out to us. You can join our [Slack community](https://jina.ai/slack) and chat with us and other community members.
 
 Contributing
 We welcome contributions from the community! If you have an idea for a new feature or improvement, please let us know. We're always looking for ways to make `any-vector-db` better for our users.
