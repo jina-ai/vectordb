@@ -1,2 +1,41 @@
-# any-vector-db
-Build, deploy and scale your Python Vector DB with Jina &amp; DocArray
+# Vector Database for Python Developers
+`any-vector-db` is a simple, user-friendly solution for Python developers looking to create their own vector database with CRUD support. Vector databases are a key component of the stack needed to use LLMs as they allow them to have access to context and memory. Many of the solutions out there require developers and users to use complex solutions that are often not needed. With `any-vector-db`, you can easily create your own vector database solution that can work locally and can still be easily deployed and served with scalability features such as sharding and replication. 
+
+`any-vector-db` allows you to start simple and work locally while allowing when needed to deploy and scale in a seamless manner. With the help of [DocArray](https://github.com/docarray/docarray) and [Jina](https://github.com/jina-ai/jina) `any-vector-db` allows developers to focus on the algorithmic part and tweak the core of the vector search with Python as they want while keeping it easy to scale and deploy the solution. 
+
+## :muscle: Features
+
+- User-friendly interface: Vector Database is designed with simplicity and ease of use in mind, making it accessible even for beginners.
+
+- CRUD support: Just provide Python implementations for interfaces implementing CRUD interactions or use any of the provided implementations.  
+
+- Customizable: Vector Database can be easily adapted to suit your specific needs, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).
+
+- Serve: Serve the databases to insert or search as a service with `gRPC` or `HTTP` protocol.
+
+- Scalable: With Vector Database, you can deploy your database in the cloud and take advantage of powerful scalability features like sharding and replication. With this, you can easily improve the latency of your service by sharding your data, or improve the availability and throughput by allowing `any-vector-db` to offer replication.
+
+- Serve in the cloud: If you need to deploy your service in the cloud, you can easily deploy in [Jina AI Cloud](). More deployment options will soon come. 
+
+- Serverless capacity: Databases can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed. # TODO: Clarify
+
+Getting Started
+
+To get started with Vector Database, simply follow these easy steps:
+
+Install `any-vector-db`: ```pip install any-vector-db`
+Create your own database: from vector_database import VectorDatabase
+Customize your database as needed: db = VectorDatabase()
+Start using your database: db.insert(record), db.get(record_id), etc.
+Roadmap
+We have big plans for the future of Vector Database! Here are some of the features we have in the works:
+
+Serverless capacity: We're working on adding serverless capacity to Vector Database, making it even easier to deploy in the cloud.
+More customization options: We want to give you even more control over your database, so we're working on adding more customization options.
+Improved performance: We're constantly working to make Vector Database faster and more efficient, so you can get more done in less time.
+Support
+If you need any help with Vector Database, don't hesitate to reach out to our friendly support team. We're always here to help you get the most out of your database.
+
+Contributing
+We welcome contributions from the community! If you have an idea for a new feature or improvement, please let us know. We're always looking for ways to make `any-vector-db` better for our users.
+
