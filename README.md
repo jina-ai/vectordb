@@ -118,13 +118,14 @@ TODO: Explain how to write your own implementation
 
 We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
-Serverless capacity: We're working on adding serverless capacity to Vector Database, making it even easier to deploy in the cloud.
-More pre-built databases: We want to give you even more pre-built solutions for your database.
-More deploying options: We want to enable deploying Vector Databases on different cloud with more options
-Support
+- Serverless capacity: We're working on adding serverless capacity to `any-vector-db` in the cloud. We currenly allow to scale between 0 and 1 replica, we aim to offer from 0 to N.
+- More ANN search algorithms: We want to support more ANN search algorithms
+
+- More deploying options: We want to enable deploying `any-vector-db` on different clouds with more options
 
 If you need any help with `any-vector-db`, or you are interested on using it and have some requests to make it fit your own need. don't hesitate to reach out to us. You can join our [Slack community](https://jina.ai/slack) and chat with us and other community members.
 
-Contributing
+## Contributing
+
 We welcome contributions from the community! If you have an idea for a new feature or improvement, please let us know. We're always looking for ways to make `any-vector-db` better for our users.
 
