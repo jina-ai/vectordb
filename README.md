@@ -25,11 +25,11 @@ Stop wondering what exact algorithms do existing solutions apply, how do they ap
 
 To get started with Vector Database, simply follow these easy steps:
 
-- 1. Install `any-vector-db`: 
+1. Install `any-vector-db`: 
 
 ```pip install any-vector-db```
 
-- 2. Define your Index Document schema or use any of the predefined ones using [DocArray](https://docs.docarray.org/user_guide/representing/first_step/):
+2. Define your Index Document schema or use any of the predefined ones using [DocArray](https://docs.docarray.org/user_guide/representing/first_step/):
 
 ```python
 from docarray import BaseDoc
@@ -39,7 +39,7 @@ class MyTextDoc(TextDoc):
    author: str = ''
 ```
 
-- 3. Use any of the pre-built databases with the document schema as a Python class: 
+3. Use any of the pre-built databases with the document schema as a Python class: 
 
 ```python
 from any_vector_db import HNSWLibDB
@@ -51,14 +51,14 @@ results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding
 
 Each result will contain the matches under the `.matches` attribute as a `DocList[MyTextDoc]`
 
-- 4. Serve the database as a service
+4. Serve the database as a service
 
 ```python
 with HNSWLibDB[MyTextDoc].serve(config={'data_path'= './hnswlib_path'}, port=12345, replicas=1, shards=1) as service:
    service.block()
 ```
 
-- 5. Interact with the database through a client in a similar way as previously:
+5. Interact with the database through a client in a similar way as previously:
 
 ```python
 from any_vector_db import Client
