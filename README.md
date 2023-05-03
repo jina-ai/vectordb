@@ -22,7 +22,7 @@ Stop wondering what exact algorithms do existing solutions apply, how do they ap
 - Serverless capacity: `any-vector-db` can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed.
 
 - Multiple ANN algorithms: `any-vector-db` contains different implementations of ANN algorithms. These are the ones offered so far, we plan to integrate more:
-   - Exact NN Search: Implements Simple Near Neighbour Algorithm.   
+   - Exact NN Search: Implements Simple Nearest Neighbour Algorithm.   
    - HNSWLib: Based on [HNSWLib](https://github.com/nmslib/hnswlib)
 
 - Filter capacity: `any-vector-db` allows you to have filters on top of the ANN search.
@@ -89,7 +89,7 @@ results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.r
 
 3. Deploy:
 ```python
-HNSWLibDB[MyTextDoc].deploy(config={'data_path'= './hnswlib_path'}replicas=1, shards=1)
+HNSWLibDB[MyTextDoc].deploy(config={'data_path'= './hnswlib_path'}, replicas=1, shards=1)
 ```
 
 You can then list and delete your deployed DBs with `jc`:
