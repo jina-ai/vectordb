@@ -53,7 +53,7 @@ from docarray.documents import TextDoc
 
 db = HNSWLibTextDatabased(data_path='./hnwslib_path')
 
-with db.serve(port=12345) as service:
+with HNSWLibTextDatabased.serve(config={'data_path'= './hnswlib_path'}, port=12345, replicas=1, shards=1) as service:
    service.block()
 ```
 
