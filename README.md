@@ -38,7 +38,7 @@ from docarray.documents import TextDoc
 
 db = HNSWLibTextDatabased(data_path='./hnwslib_path')
 
-db.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128))for i in range(1000)]))
+db.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
 
 results = db.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
 ```
@@ -64,7 +64,7 @@ from any_vector_db import Client
 
 c = Client(port=12345)
 
-c.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128))for i in range(1000)]))
+c.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
 results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
 ```
 
