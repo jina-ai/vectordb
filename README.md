@@ -69,17 +69,18 @@ c.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.
 results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
 ```
 
-## Customize your Database
+## Deploy it to the cloud
 
-TODO: Explain how to write your own implementation
+TODO: Explain how and why you would deploy to JCloud.
 
 ## Scale your own Database, add replication and sharding
 
 TODO: Explain how and why you would add replicas and shards
 
-## Deploy it to the cloud
+## (Optional) Customize your Database
 
-TODO: Explain how and why you would deploy to JCloud.
+TODO: Explain how to write your own implementation
+
 
 ## Roadmap
 
