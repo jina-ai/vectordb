@@ -87,19 +87,27 @@ results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.r
 
 ```jc login```
 
-3. Containerize your Database, some refactoring is required:
+3. Deploy:
+```python
+HNSWLibDB[MyTextDoc].deploy(config={'data_path'= './hnswlib_path'}replicas=1, shards=1)
+```
 
-   1. Step 1
-   2. Step 2
-   3. Step 3
-   
-4. Run the deploy command (CLI or Python)
+You can then list and delete your deployed DBs with `jc`:
 
-TODO: Explain how and why you would deploy to JCloud.
+```jc list <>```
+
+```jc delete <>```
+
 
 ## :rocket: Scale your own Database, add replication and sharding
 
-TODO: Explain how and why you would add replicas and shards
+When serving or deploying your Vector Databases you can set 2 scaling parameters and `any-vector-db`:
+
+- Shards: The number of shards in which the data will be split. This will allow for better latency. `any-vector-db` will make sure that Documents are indexed in only one of the shards, while search request will be sent to all the shards and `any-vector-db` will make sure to merge the results from all shards.
+
+- Replicas: The number of replicas of the same DB that must exist. The given replication factor will be shared by all the `shards`. `any-vector-db` uses RAFT algorithm to ensure that the index is in sync between all the replicas of each shard. With this, `any-vector-db` increases the availability of the service and allows for better search throughput as multiple replicas can respond in parallel to more search requests while allowing CRUD operations. 
+
+** When deployed, the number of replicas will be set to 1. We are working to enable replication in the cloud
 
 ## 🛠️ (Optional) Customize your Database
 
