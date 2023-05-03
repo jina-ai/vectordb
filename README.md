@@ -25,49 +25,49 @@ Stop wondering what exact algorithms do existing solutions apply, how do they ap
 
 To get started with Vector Database, simply follow these easy steps:
 
-- Install `any-vector-db`: 
+- 1. Install `any-vector-db`: 
 
 ```pip install any-vector-db```
 
-- Use any of the pre-built databases as a Python class: 
+- 2. Define your Index Document schema or use any of the predefined ones using [DocArray](https://docs.docarray.org/user_guide/representing/first_step/):
 
 ```python
-from any_vector_db import HNSWLibTextDatabase
-from docarray import DocList
-from docarray.documents import TextDoc
+from docarray import BaseDoc
+from docarray.text import TextDoc
 
-db = HNSWLibTextDatabased(data_path='./hnwslib_path')
-
-db.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
-
-results = db.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
+class MyTextDoc(TextDoc):
+   author: str = ''
 ```
 
-- Serve the database as a service
+- 3. Use any of the pre-built databases with the document schema as a Python class: 
 
 ```python
+from any_vector_db import HNSWLibDB
+db = HNSWLibDB[MyTextDoc](data_path='./hnwslib_path')
 
-from any_vector_db import HNSWLibTextDatabase
-from docarray import DocList
-from docarray.documents import TextDoc
+db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
+results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
+```
 
-db = HNSWLibTextDatabased(data_path='./hnwslib_path')
+Each result will contain the matches under the `.matches` attribute as a `DocList[MyTextDoc]`
 
-with HNSWLibTextDatabased.serve(config={'data_path'= './hnswlib_path'}, port=12345, replicas=1, shards=1) as service:
+- 4. Serve the database as a service
+
+```python
+with HNSWLibDB[MyTextDoc].serve(config={'data_path'= './hnswlib_path'}, port=12345, replicas=1, shards=1) as service:
    service.block()
 ```
 
-- Interact with the database through a client on a similar way as previously:
+- 5. Interact with the database through a client in a similar way as previously:
 
 ```python
 from any_vector_db import Client
 
-c = Client(port=12345)
+c = Client[MyTextDoc](port=12345)
 
 c.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
 results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
 ```
-
 
 ## Customize your Database
 
@@ -81,8 +81,8 @@ TODO: Explain how and why you would add replicas and shards
 
 TODO: Explain how and why you would deploy to JCloud.
 
-
 ## Roadmap
+
 We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
 Serverless capacity: We're working on adding serverless capacity to Vector Database, making it even easier to deploy in the cloud.
