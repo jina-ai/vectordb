@@ -64,8 +64,8 @@ from any_vector_db import Client
 
 c = Client(port=12345)
 
-c.index()
-c.search()
+c.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128))for i in range(1000)]))
+results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
 ```
 
 
