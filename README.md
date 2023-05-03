@@ -71,6 +71,22 @@ results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.r
 
 ## Deploy it to the cloud
 
+`any-vector-db` allows you to deploy your solution to the cloud easily. 
+
+1. First, you need to get a [Jina AI Cloud](https://cloud.jina.ai/) account
+
+2. Login to your Jina AI Cloud account using the `jc` command line:
+
+```jc login```
+
+3. Containerize your Database, some refactoring is required:
+
+   1. Step 1
+   2. Step 2
+   3. Step 3
+   
+4. Run the deploy command (CLI or Python)
+
 TODO: Explain how and why you would deploy to JCloud.
 
 ## Scale your own Database, add replication and sharding
