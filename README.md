@@ -7,23 +7,31 @@ Stop wondering what exact algorithms do existing solutions apply, how do they ap
 
 ## :muscle: Features
 
-- User-friendly interface: Vector Database is designed with simplicity and ease of use in mind, making it accessible even for beginners.
+- User-friendly interface: `any-vector-db` is designed with simplicity and ease of use in mind, making it accessible even for beginners.
 
-- CRUD support: Just provide Python implementations for interfaces implementing CRUD interactions or use any of the provided implementations.  
+- Adapts to your needs: `any-vector-db` is designed to offer what you need without extra complexity, supporting the features needed at every step. From local, to serve, to the cloud in a seamless way.
 
-- Customizable: Vector Database can be easily adapted to suit your specific needs, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).
+- CRUD support: `any-vector-db` support CRUD operations, index, search, update and delete.
 
 - Serve: Serve the databases to insert or search as a service with `gRPC` or `HTTP` protocol.
 
-- Scalable: With Vector Database, you can deploy your database in the cloud and take advantage of powerful scalability features like sharding and replication. With this, you can easily improve the latency of your service by sharding your data, or improve the availability and throughput by allowing `any-vector-db` to offer replication.
+- Scalable: With `any-vector-db`, you can deploy your database in the cloud and take advantage of powerful scalability features like sharding and replication. With this, you can easily improve the latency of your service by sharding your data, or improve the availability and throughput by allowing `any-vector-db` to offer replication.
 
-- Serve in the cloud: If you need to deploy your service in the cloud, you can easily deploy in [Jina AI Cloud](). More deployment options will soon come. 
+- Deploy to the cloud: If you need to deploy your service in the cloud, you can easily deploy in [Jina AI Cloud](). More deployment options will soon come. 
 
-- Serverless capacity: Databases can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed. # TODO: Clarify
+- Serverless capacity: `any-vector-db` can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed.
 
-## Getting Started with prebuilt databases
+- Multiple ANN algorithms: `any-vector-db` contains different implementations of ANN algorithms. These are the ones offered so far, we plan to integrate more:
+   - Exact NN Search: Implements Simple Near Neighbour Algorithm.   
+   - HNSWLib: Based on [HNSWLib](https://github.com/nmslib/hnswlib)
 
-To get started with Vector Database, simply follow these easy steps:
+- Filter capacity: `any-vector-db` allows you to have filters on top of the ANN search.
+
+- Customizable: `any-vector-db` can be easily extended to suit your specific needs or schemas, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).
+
+## 🏁 Getting Started
+
+To get started with Vector Database, simply follow these easy steps, in this example we are going to use `HNSWVecDB` as example:
 
 1. Install `any-vector-db`: 
 
@@ -69,7 +77,7 @@ c.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.
 results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
 ```
 
-## Deploy it to the cloud
+## :cloud: Deploy it to the cloud
 
 `any-vector-db` allows you to deploy your solution to the cloud easily. 
 
@@ -89,16 +97,16 @@ results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.r
 
 TODO: Explain how and why you would deploy to JCloud.
 
-## Scale your own Database, add replication and sharding
+## :rocket: Scale your own Database, add replication and sharding
 
 TODO: Explain how and why you would add replicas and shards
 
-## (Optional) Customize your Database
+## 🛠️ (Optional) Customize your Database
 
 TODO: Explain how to write your own implementation
 
 
-## Roadmap
+## 🛣️ Roadmap
 
 We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
