@@ -1,41 +1,41 @@
 # Vector Database for Python Developers
-`pyvectordb` is a simple, user-friendly solution for Python developers looking to create their own vector database with CRUD support. Vector databases are a key component of the stack needed to use LLMs as they allow them to have access to context and memory. Many of the solutions out there require developers and users to use complex solutions that are often not needed. With `pyvectordb`, you can easily create your own vector database solution that can work locally and still be easily deployed and served with scalability features such as sharding and replication. 
+`vectordb` is a simple, user-friendly solution for Python developers looking to create their own vector database with CRUD support. Vector databases are a key component of the stack needed to use LLMs as they allow them to have access to context and memory. Many of the solutions out there require developers and users to use complex solutions that are often not needed. With `vectordb`, you can easily create your own vector database solution that can work locally and still be easily deployed and served with scalability features such as sharding and replication. 
 
-`pyvectordb` allows you to start simple and work locally while allowing when needed to deploy and scale in a seamless manner. With the help of [DocArray](https://github.com/docarray/docarray) and [Jina](https://github.com/jina-ai/jina) `pyvectordb` allows developers to focus on the algorithmic part and tweak the core of the vector search with Python as they want while keeping it easy to scale and deploy the solution.
+`vectordb` allows you to start simple and work locally while allowing when needed to deploy and scale in a seamless manner. With the help of [DocArray](https://github.com/docarray/docarray) and [Jina](https://github.com/jina-ai/jina) `vectordb` allows developers to focus on the algorithmic part and tweak the core of the vector search with Python as they want while keeping it easy to scale and deploy the solution.
 
-Stop wondering what exact algorithms do existing solutions apply, how do they apply filtering or how to map your schema to their solutions, with `pyvectordb` you as a Python developer can easily understand and control what is the vector search algorithm doing, giving you the full control if needed while supporting you for local setting and in more advanced and demanding scenarios in the cloud.
+Stop wondering what exact algorithms do existing solutions apply, how do they apply filtering or how to map your schema to their solutions, with `vectordb` you as a Python developer can easily understand and control what is the vector search algorithm doing, giving you the full control if needed while supporting you for local setting and in more advanced and demanding scenarios in the cloud.
 
 ## :muscle: Features
 
-- User-friendly interface: `pyvectordb` is designed with simplicity and ease of use in mind, making it accessible even for beginners.
+- User-friendly interface: `vectordb` is designed with simplicity and ease of use in mind, making it accessible even for beginners.
 
-- Adapts to your needs: `pyvectordb` is designed to offer what you need without extra complexity, supporting the features needed at every step. From local, to serve, to the cloud in a seamless way.
+- Adapts to your needs: `vectordb` is designed to offer what you need without extra complexity, supporting the features needed at every step. From local, to serve, to the cloud in a seamless way.
 
-- CRUD support: `pyvectordb` support CRUD operations, index, search, update and delete.
+- CRUD support: `vectordb` support CRUD operations, index, search, update and delete.
 
 - Serve: Serve the databases to insert or search as a service with `gRPC` or `HTTP` protocol.
 
-- Scalable: With `pyvectordb`, you can deploy your database in the cloud and take advantage of powerful scalability features like sharding and replication. With this, you can easily improve the latency of your service by sharding your data, or improve the availability and throughput by allowing `pyvectordb` to offer replication.
+- Scalable: With `vectordb`, you can deploy your database in the cloud and take advantage of powerful scalability features like sharding and replication. With this, you can easily improve the latency of your service by sharding your data, or improve the availability and throughput by allowing `vectordb` to offer replication.
 
 - Deploy to the cloud: If you need to deploy your service in the cloud, you can easily deploy in [Jina AI Cloud](). More deployment options will soon come. 
 
-- Serverless capacity: `pyvectordb` can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed.
+- Serverless capacity: `vectordb` can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed.
 
-- Multiple ANN algorithms: `pyvectordb` contains different implementations of ANN algorithms. These are the ones offered so far, we plan to integrate more:
+- Multiple ANN algorithms: `vectordb` contains different implementations of ANN algorithms. These are the ones offered so far, we plan to integrate more:
    - Exact NN Search: Implements Simple Nearest Neighbour Algorithm.   
    - HNSWLib: Based on [HNSWLib](https://github.com/nmslib/hnswlib)
 
-- Filter capacity: `pyvectordb` allows you to have filters on top of the ANN search.
+- Filter capacity: `vectordb` allows you to have filters on top of the ANN search.
 
-- Customizable: `pyvectordb` can be easily extended to suit your specific needs or schemas, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).
+- Customizable: `vectordb` can be easily extended to suit your specific needs or schemas, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).
 
 ## 🏁 Getting Started
 
 To get started with Vector Database, simply follow these easy steps, in this example we are going to use `HNSWVecDB` as example:
 
-1. Install `pyvectordb`: 
+1. Install `vectordb`: 
 
-```pip install pyvectordb```
+```pip install vectordb```
 
 2. Define your Index Document schema or use any of the predefined ones using [DocArray](https://docs.docarray.org/user_guide/representing/first_step/):
 
@@ -79,7 +79,7 @@ results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.r
 
 ## :cloud: Deploy it to the cloud
 
-`pyvectordb` allows you to deploy your solution to the cloud easily. 
+`vectordb` allows you to deploy your solution to the cloud easily. 
 
 1. First, you need to get a [Jina AI Cloud](https://cloud.jina.ai/) account
 
@@ -101,11 +101,11 @@ You can then list and delete your deployed DBs with `jc`:
 
 ## :rocket: Scale your own Database, add replication and sharding
 
-When serving or deploying your Vector Databases you can set 2 scaling parameters and `pyvectordb`:
+When serving or deploying your Vector Databases you can set 2 scaling parameters and `vectordb`:
 
-- Shards: The number of shards in which the data will be split. This will allow for better latency. `pyvectordb` will make sure that Documents are indexed in only one of the shards, while search request will be sent to all the shards and `pyvectordb` will make sure to merge the results from all shards.
+- Shards: The number of shards in which the data will be split. This will allow for better latency. `vectordb` will make sure that Documents are indexed in only one of the shards, while search request will be sent to all the shards and `vectordb` will make sure to merge the results from all shards.
 
-- Replicas: The number of replicas of the same DB that must exist. The given replication factor will be shared by all the `shards`. `pyvectordb` uses RAFT algorithm to ensure that the index is in sync between all the replicas of each shard. With this, `pyvectordb` increases the availability of the service and allows for better search throughput as multiple replicas can respond in parallel to more search requests while allowing CRUD operations. 
+- Replicas: The number of replicas of the same DB that must exist. The given replication factor will be shared by all the `shards`. `vectordb` uses RAFT algorithm to ensure that the index is in sync between all the replicas of each shard. With this, `vectordb` increases the availability of the service and allows for better search throughput as multiple replicas can respond in parallel to more search requests while allowing CRUD operations. 
 
 ** When deployed, the number of replicas will be set to 1. We are working to enable replication in the cloud
 
@@ -118,14 +118,14 @@ TODO: Explain how to write your own implementation
 
 We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
-- Serverless capacity: We're working on adding serverless capacity to `pyvectordb` in the cloud. We currenly allow to scale between 0 and 1 replica, we aim to offer from 0 to N.
+- Serverless capacity: We're working on adding serverless capacity to `vectordb` in the cloud. We currenly allow to scale between 0 and 1 replica, we aim to offer from 0 to N.
 - More ANN search algorithms: We want to support more ANN search algorithms
 
-- More deploying options: We want to enable deploying `pyvectordb` on different clouds with more options
+- More deploying options: We want to enable deploying `vectordb` on different clouds with more options
 
-If you need any help with `pyvectordb`, or you are interested on using it and have some requests to make it fit your own need. don't hesitate to reach out to us. You can join our [Slack community](https://jina.ai/slack) and chat with us and other community members.
+If you need any help with `vectordb`, or you are interested on using it and have some requests to make it fit your own need. don't hesitate to reach out to us. You can join our [Slack community](https://jina.ai/slack) and chat with us and other community members.
 
 ## Contributing
 
-We welcome contributions from the community! If you have an idea for a new feature or improvement, please let us know. We're always looking for ways to make `pyvectordb` better for our users.
+We welcome contributions from the community! If you have an idea for a new feature or improvement, please let us know. We're always looking for ways to make `vectordb` better for our users.
 
