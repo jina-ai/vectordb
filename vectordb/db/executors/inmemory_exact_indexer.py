@@ -14,18 +14,18 @@ class InMemoryExactNNIndexer(TypedExecutor):
     @write
     @requests(on='/index')
     def index(self, docs, parameters, **kwargs):
-        pass
+        self.logger.debug(f'INDEX')
 
     @write
     @requests(on='/update')
     def update(self, docs, parameters, **kwargs):
-        pass
+        self.logger.debug(f'UPDATE')
 
     @write
     @requests(on='/delete')
     def delete(self, docs, parameters, **kwargs):
-        pass
+        self.logger.debug(f'DELETE')
 
     @requests(on='/delete')
     def search(self, docs, parameters, **kwargs):
-        pass
+        self.logger.debug(f'SEARCH')

@@ -14,18 +14,21 @@ class HNSWLibIndexer(TypedExecutor):
     @write
     @requests(on='/index')
     def index(self, docs, parameters, **kwargs):
+        self.logger.debug(f'INDEXING')
         pass
 
     @write
     @requests(on='/update')
     def update(self, docs, parameters, **kwargs):
+        self.logger.debug(f'INDEXING')
         pass
 
     @write
     @requests(on='/delete')
     def delete(self, docs, parameters, **kwargs):
+        self.logger.debug(f'INDEXING')
         pass
 
     @requests(on='/delete')
     def search(self, docs, parameters, **kwargs):
-        pass
+        self.logger.debug(f'DELET')

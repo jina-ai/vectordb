@@ -48,23 +48,24 @@ class VectorDB(Generic[TSchema]):
     def serve(cls,
               *,
               port: Optional[Union[str, List[str]]] = 8081,
-              uses_with: Optional[Dict[str, Any]] = {},
+              config: Optional[Dict[str, Any]] = {},
               protocol: Optional[Union[str, List[str]]] = None,
               shards: Optional[int] = None,
               replicas: Optional[int] = None,
               **kwargs):
+        protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
         stateful = replicas is not None and replicas > 1
         if 'stateful' in kwargs:
             kwargs.pop('stateful')
 
         if 'websocket' not in protocol_list and (shards == 1 or 'http' not in protocol_list):
-            ctxt_manager = Deployment(uses=cls._executor_cls, uses_with=uses_with, port=port, protocol=protocol,
+            ctxt_manager = Deployment(uses=cls._executor_cls, uses_with=config, port=port, protocol=protocol,
                                       shards=shards,
                                       replicas=replicas, stateful=stateful, **kwargs)
         else:
             ctxt_manager = Flow(port=port, protocol=protocol, **kwargs).add(uses=cls._executor_cls,
-                                                                            uses_with=uses_with,
+                                                                            uses_with=config,
                                                                             shards=shards, replicas=replicas,
                                                                             stateful=stateful)
 
