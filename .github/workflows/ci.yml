@@ -1,0 +1,150 @@
+name: CI
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+
+jobs:
+  commit-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.5.0
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v4
+
+  lint-flake-8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.5.0
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude .git,__pycache__,docs/source/conf.py,old,build,dist,tests/
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude .git,__pycache__,docs/source/conf.py,old,build,dist,tests/
+
+  check-black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.5.0
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - id: file_changes
+        uses: Ana06/get-changed-files@v1.2
+      - name: check black
+        run: ./scripts/black.sh
+        env:
+          CHANGED_FILES: ${{ steps.file_changes.outputs.added_modified }}
+
+  prep-testbed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install Dependency
+        run: |
+          sudo apt-get install jq
+      - id: set-matrix-unit
+        run: |
+          echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh unit 1)"
+      - id: set-matrix-integration
+        run: |
+          echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh integration_local 1)"
+    outputs:
+      matrix-unit: ${{ steps.set-matrix-unit.outputs.matrix }}
+      matrix-integration: ${{ steps.set-matrix-integration.outputs.matrix }}
+
+  unit-tests:
+    needs: prep-testbed
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.9]
+        test-path: ${{fromJson(needs.prep-testbed.outputs.matrix-unit)}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Prepare environment
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install wheel
+          pip install -r requirements.txt
+          pip install --no-cache-dir ".[test]"
+          sudo apt-get install libsndfile1
+      - name: Test
+        id: test
+        run: |
+          pytest -v -s --log-cli-level=DEBUG ${{ matrix.test-path }}
+        timeout-minutes: 30
+
+  integration-tests:
+    needs: prep-testbed
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.9]
+        test-path: ${{fromJson(needs.prep-testbed.outputs.matrix-integration)}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Prepare environment
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install wheel
+          pip install -r requirements.txt
+          pip install --no-cache-dir ".[test]"
+          sudo apt-get install libsndfile1
+      - name: Setup monitoring stack
+        run: |
+          cd $GITHUB_WORKSPACE
+          docker-compose -f tests/integration/docker-compose.yml  --project-directory . up  --build -d --remove-orphans
+      - name: Test
+        id: test
+        run: |
+          pytest -v -s --log-cli-level=DEBUG ${{ matrix.test-path }}
+        timeout-minutes: 30
+      - name: Cleanup monitoring stack
+        run: |
+          cd $GITHUB_WORKSPACE
+          docker-compose -f tests/integration/docker-compose.yml  --project-directory . down
+
+  # just for blocking the merge until all parallel integration-tests are successful
+  success-all-test:
+    needs:
+      - unit-tests
+      - integration-tests
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: technote-space/workflow-conclusion-action@v2
+      - name: Check Failure
+        if: env.WORKFLOW_CONCLUSION == 'failure'
+        run: exit 1
+      - name: Success
+        if: ${{ success() }}
+        run: echo "All Done"
