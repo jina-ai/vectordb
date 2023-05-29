@@ -7,23 +7,21 @@ from docarray.index import HnswDocumentIndex
 class HNSWLibIndexer(TypedExecutor):
 
     def __init__(self, *args, **kwargs):
-        print(f' HNSWLibIndexer with {self._schema} and {kwargs}')
         super().__init__(*args, **kwargs)
-        self.logger.debug(f'HNSWLibIndexer with {self._schema}')
-        self._index = HnswDocumentIndex[self._schema](**kwargs)
-        self.logger.debug(f'self._index {self._index}')
+        self._index = HnswDocumentIndex[self._schema]()
+        self.logger.debug(f'self._index {self._index} and {self.requests}')
 
-    #@write
+    @write
     @requests(on='/index')
     def index(self, docs, parameters, **kwargs):
         pass
 
-    #@write
+    @write
     @requests(on='/update')
     def update(self, docs, parameters, **kwargs):
         pass
 
-    #@write
+    @write
     @requests(on='/delete')
     def delete(self, docs, parameters, **kwargs):
         pass

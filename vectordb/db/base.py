@@ -1,10 +1,12 @@
+from jina import Deployment, Flow
 from docarray import BaseDoc, DocList
 from typing import TypeVar, Generic, Type, Optional, Union, List, Dict, Any
 from vectordb.db.executors.typed_executor import TypedExecutor
-
-from contextlib import contextmanager
+from vectordb.db.service import Service
 
 TSchema = TypeVar('TSchema', bound=BaseDoc)
+
+REQUESTS_MAP = {'/index': 'index', '/update': 'update', '/delete': 'delete', '/search': 'search'}
 
 
 class VectorDB(Generic[TSchema]):
@@ -39,10 +41,10 @@ class VectorDB(Generic[TSchema]):
 
     def __init__(self, *args, **kwargs):
         self._uses_with = kwargs
+        kwargs['requests'] = REQUESTS_MAP
         self._executor = self._executor_cls(*args, **kwargs)
 
     @classmethod
-    @contextmanager
     def serve(cls,
               *,
               port: Optional[Union[str, List[str]]] = 8081,
@@ -57,17 +59,16 @@ class VectorDB(Generic[TSchema]):
             kwargs.pop('stateful')
 
         if 'websocket' not in protocol_list and (shards == 1 or 'http' not in protocol_list):
-            from jina import Deployment
-
-            with Deployment(uses=cls._executor_class, uses_with=uses_with, port=port, protocol=protocol, shards=shards,
-                            replicas=replicas, stateful=stateful, **kwargs) as dep:
-                yield dep
+            ctxt_manager = Deployment(uses=cls._executor_cls, uses_with=uses_with, port=port, protocol=protocol,
+                                      shards=shards,
+                                      replicas=replicas, stateful=stateful, **kwargs)
         else:
-            from jina import Flow
+            ctxt_manager = Flow(port=port, protocol=protocol, **kwargs).add(uses=cls._executor_cls,
+                                                                            uses_with=uses_with,
+                                                                            shards=shards, replicas=replicas,
+                                                                            stateful=stateful)
 
-            with Flow(port=port, protocol=protocol, **kwargs).add(uses=cls._executor_class, uses_with=uses_with,
-                                                                  shards=shards, replicas=replicas, stateful=stateful) as dep:
-                yield dep
+        return Service(ctxt_manager)
 
     def index(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
         params = parameters or {}

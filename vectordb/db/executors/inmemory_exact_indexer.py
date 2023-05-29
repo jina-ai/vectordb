@@ -7,23 +7,21 @@ from docarray.index import InMemoryExactNNIndex
 class InMemoryExactNNIndexer(TypedExecutor):
 
     def __init__(self, *args, **kwargs):
-        print(f' InMemoryExactNNIndexer with {self._schema} and {kwargs}')
         super().__init__(*args, **kwargs)
-        self.logger.debug(f' InMemoryExactNNIndexer with {self._schema}')
-        self._index = InMemoryExactNNIndex[self._schema](**kwargs)
-        self.logger.debug(f'self._index {self._index}')
+        self._index = InMemoryExactNNIndex[self._schema]()
+        self.logger.debug(f'self._index {self._index} and {self.requests}')
 
-    #@write
+    @write
     @requests(on='/index')
     def index(self, docs, parameters, **kwargs):
         pass
 
-    #@write
+    @write
     @requests(on='/update')
     def update(self, docs, parameters, **kwargs):
         pass
 
-    #@write
+    @write
     @requests(on='/delete')
     def delete(self, docs, parameters, **kwargs):
         pass
