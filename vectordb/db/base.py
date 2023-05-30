@@ -1,8 +1,9 @@
 from jina import Deployment, Flow
 from docarray import BaseDoc, DocList
-from typing import TypeVar, Generic, Type, Optional, Union, List, Dict, Any
+from typing import TypeVar, Generic, Type, Optional, Union, List, Dict
 from vectordb.db.executors.typed_executor import TypedExecutor
 from vectordb.db.service import Service
+from vectordb.utils.create_doc_type import create_output_doc_type
 
 TSchema = TypeVar('TSchema', bound=BaseDoc)
 
@@ -12,7 +13,8 @@ REQUESTS_MAP = {'/index': 'index', '/update': 'update', '/delete': 'delete', '/s
 class VectorDB(Generic[TSchema]):
     # the BaseDoc that defines the schema of the store
     # for subclasses this is filled automatically
-    _schema: Optional[Type[BaseDoc]] = None
+    _input_schema: Optional[Type[BaseDoc]] = None
+    _output_schema: Optional[Type[BaseDoc]] = None
     _executor_type: Optional[Type[TypedExecutor]] = None
     _executor_cls: Type[TypedExecutor]
 
@@ -30,9 +32,12 @@ class VectorDB(Generic[TSchema]):
                 f'{cls.__name__}[item] `item` should be a Document not a {item} '
             )
 
+        out_item = create_output_doc_type(item)
+
         class VectorDBTyped(cls):  # type: ignore
-            _schema: Type[TSchema] = item
-            _executor_cls: Type[TypedExecutor] = cls._executor_type[item]
+            _input_schema: Type[TSchema] = item
+            _output_schema: Type[TSchema] = out_item
+            _executor_cls: Type[TypedExecutor] = cls._executor_type[item, out_item]
 
         VectorDBTyped.__name__ = f'{cls.__name__}[{item.__name__}]'
         VectorDBTyped.__qualname__ = f'{cls.__qualname__}[{item.__name__}]'
@@ -56,8 +61,8 @@ class VectorDB(Generic[TSchema]):
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
         stateful = replicas is not None and replicas > 1
-
-        ServedExecutor = type(f'{cls._executor_cls.__name__.replace("[", "").replace("]", "")}', (cls._executor_cls,),
+        executor_cls_name = ''.join(cls._executor_cls.__name__.split('[')[0:2])
+        ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
                               {})
         if 'stateful' in kwargs:
             kwargs.pop('stateful')

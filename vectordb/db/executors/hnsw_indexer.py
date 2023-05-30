@@ -1,4 +1,5 @@
 from docarray.index import HnswDocumentIndex
+from docarray import DocList
 from jina.serve.executors.decorators import requests, write
 
 from vectordb.db.executors.typed_executor import TypedExecutor
@@ -11,22 +12,36 @@ class HNSWLibIndexer(TypedExecutor):
         db_config = HnswDocumentIndex.DBConfig
         db_config.work_dir = self.workspace
         db_config.index_name = 'index'
-        self._index = HnswDocumentIndex[self._schema](work_dir=self.workspace, index_name='index')
+        self._index = HnswDocumentIndex[self._input_schema](work_dir=self.workspace, index_name='index')
 
     def index(self, docs, *args, **kwargs):
+        self.logger.debug(f'Index')
         self._index.index(docs)
 
     @write
     @requests(on='/index')
     async def async_index(self, docs, *args, **kwargs):
         # Index does not work on a separate thread, this is why we need to call async
-        self.logger.debug(f'Index')
+        self.logger.debug(f'Async Index')
         self.index(docs)
 
-    @requests(on='/search')
     def search(self, docs, *args, **kwargs):
         self.logger.debug(f'Search')
-        return self._index.find_batched(docs)[0]
+        res = DocList[self._output_schema]()
+        ret = self._index.find_batched(docs, search_field='embedding')
+        matched_documents = ret.documents
+        matched_scores = ret.scores
+        assert len(docs) == len(matched_documents) == len(matched_scores)
+        for query, matches, scores in zip(docs, matched_documents, matched_scores):
+            output_doc = self._output_schema(**query.dict())
+            output_doc.matches = matches
+            output_doc.scores = scores.tolist()
+            res.append(output_doc)
+        return res
+
+    @requests(on='/search')
+    async def async_search(self, docs, *args, **kwargs):
+        return self.search(docs, *args, **kwargs)
 
     @write
     @requests(on='/update')
