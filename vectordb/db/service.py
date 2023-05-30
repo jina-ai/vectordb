@@ -9,7 +9,7 @@ class Service:
         return self.ctxt_manager.__enter__()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        return self.ctxt_manager.__exit(exc_type, exc_val, exc_tb)
+        return self.ctxt_manager.__exit__(exc_type, exc_val, exc_tb)
 
     def block(self):
         return self.ctxt_manager.block()

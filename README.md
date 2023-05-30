@@ -50,7 +50,7 @@ class MyTextDoc(TextDoc):
 3. Use any of the pre-built databases with the document schema as a Python class: 
 
 ```python
-from any_vector_db import HNSWLibDB
+from vectordb import HNSWLibDB
 db = HNSWLibDB[MyTextDoc](data_path='./hnwslib_path')
 
 db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
@@ -69,7 +69,7 @@ with HNSWLibDB[MyTextDoc].serve(config={'data_path'= './hnswlib_path'}, port=123
 5. Interact with the database through a client in a similar way as previously:
 
 ```python
-from any_vector_db import Client
+from vectordb import Client
 
 c = Client[MyTextDoc](port=12345)
 
