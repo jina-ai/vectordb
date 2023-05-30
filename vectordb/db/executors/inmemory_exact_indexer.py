@@ -1,5 +1,3 @@
-from typing import Optional
-
 from docarray.index import InMemoryExactNNIndex
 from docarray import DocList
 from jina.serve.executors.decorators import requests, write
@@ -9,10 +7,10 @@ from vectordb.db.executors.typed_executor import TypedExecutor
 
 class InMemoryExactNNIndexer(TypedExecutor):
 
-    def __init__(self, index_file_path: Optional[str] = None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._index_file_path = f'{self.workspace}/index.bin'
-        self._index = InMemoryExactNNIndex[self._input_schema](index_file_path=index_file_path)
+        self._index_file_path = f'{self.workspace}/index.bin' if self.handle_persistence else None
+        self._index = InMemoryExactNNIndex[self._input_schema](index_file_path=self._index_file_path)
 
     @write
     @requests(on='/index')
@@ -28,7 +26,6 @@ class InMemoryExactNNIndexer(TypedExecutor):
         matched_documents = ret.documents
         matched_scores = ret.scores
         assert len(docs) == len(matched_documents) == len(matched_scores)
-        print(f' matched_scores {matched_scores}')
 
         for query, matches, scores in zip(docs, matched_documents, matched_scores):
             output_doc = self._output_schema(**query.dict())
@@ -53,5 +50,14 @@ class InMemoryExactNNIndexer(TypedExecutor):
     def num_docs(self, *args, **kwargs):
         return {'num_docs': self._index.num_docs()}
 
+    def snapshot(self, snapshot_dir):
+        snapshot_file = f'{snapshot_dir}/index.bin'
+        self._index.persist(snapshot_file)
+
+    def restore(self, snapshot_dir):
+        snapshot_file = f'{snapshot_dir}/index.bin'
+        self._index = InMemoryExactNNIndex[self._input_schema](index_file_path=snapshot_file)
+
     def close(self):
-        self._index.persist(self._index_file_path)
+        if self._index_file_path is not None:
+            self._index.persist(self._index_file_path)

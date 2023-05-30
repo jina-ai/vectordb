@@ -32,6 +32,7 @@ class HNSWLibIndexer(TypedExecutor):
         matched_documents = ret.documents
         matched_scores = ret.scores
         assert len(docs) == len(matched_documents) == len(matched_scores)
+
         for query, matches, scores in zip(docs, matched_documents, matched_scores):
             output_doc = self._output_schema(**query.dict())
             output_doc.matches = matches
@@ -58,3 +59,14 @@ class HNSWLibIndexer(TypedExecutor):
 
     def num_docs(self, **kwargs):
         return {'num_docs': self._index.num_docs()}
+
+    def snapshot(self, snapshot_dir):
+        snapshot_file = f'{snapshot_dir}/index.bin'
+        self._index.persist(snapshot_file)
+
+    def restore(self, snapshot_dir):
+        self._index = HnswDocumentIndex[self._input_schema](work_dir=snapshot_dir, index_name='index')
+
+    def close(self):
+        if self._index_file_path is not None:
+            self._index.persist(self._index_file_path)

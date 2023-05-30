@@ -1,28 +1,14 @@
-from vectordb.client.client import Client
 
-
-class Service:
+class Client:
 
     def __init__(self, ctxt_manager):
-        self.ctxt_manager = ctxt_manager
-        self._client = Client(ctxt_manager)
-
-    def __enter__(self):
-        return self.ctxt_manager.__enter__()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        return self.ctxt_manager.__exit__(exc_type, exc_val, exc_tb)
-
-    def block(self):
-        return self.ctxt_manager.block()
-
-    def client(self):
-        return self._client
+        self._client = ctxt_manager.client
 
     def index(self, *args, **kwargs):
         return self._client.index(*args, **kwargs)
 
     def search(self, *args, **kwargs):
+        # potentially unwrap the return
         return self._client.search(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

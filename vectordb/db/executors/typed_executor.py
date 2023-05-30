@@ -18,11 +18,18 @@ class TypedExecutor(Executor, Generic[InputSchema, OutputSchema]):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._num_replicas = getattr(self.runtime_args, 'replicas')
         for k, v in self._requests.items():
             if k != '/search':
-                self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema], DocList[self._input_schema])
+                self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
+                                                        DocList[self._input_schema])
             else:
-                self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema], DocList[self._output_schema])
+                self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
+                                                        DocList[self._output_schema])
+
+    @property
+    def handle_persistence(self):
+        return self._num_replicas == 1
 
     ##################################################
     # Behind-the-scenes magic                        #

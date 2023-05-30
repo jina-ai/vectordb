@@ -57,6 +57,7 @@ class VectorDB(Generic[TSchema]):
               protocol: Optional[Union[str, List[str]]] = None,
               shards: Optional[int] = None,
               replicas: Optional[int] = None,
+              peer_ports: Optional[Union[Dict[str, List], List]] = None,
               **kwargs):
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
@@ -64,18 +65,44 @@ class VectorDB(Generic[TSchema]):
         executor_cls_name = ''.join(cls._executor_cls.__name__.split('[')[0:2])
         ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
                               {})
+        if 1 < replicas < 3:
+            raise Exception(f'In order for consensus to properly work, at least 3 replicas need to be provided.')
+
+        if peer_ports is None and stateful is True:
+            peer_ports = {}
+            if shards is not None:
+                for shard in range(shards):
+                    peer_ports[str(shard)] = [8081 + (shard + 1) * (replica + 1) for replica in range(replicas)]
+            else:
+                peer_ports['0'] = [8081 + (replica + 1) for replica in range(replicas)]
+
+        if stateful is True:
+            if shards is not None:
+                assert len(peer_ports.keys()) == shards, 'Need to provide `peer_ports` information for each shard'
+            for shard in peer_ports.keys():
+                assert len(peer_ports[str(
+                    shard)]) == replicas, f'For shard {shard}, need to provide ports for each replica ({replicas} replicas), got {len(peer_ports[str(shard)])} instead'
+
         if 'stateful' in kwargs:
             kwargs.pop('stateful')
 
         if 'websocket' not in protocol_list and (shards == 1 or 'http' not in protocol_list):
-            ctxt_manager = Deployment(uses=ServedExecutor, port=port, protocol=protocol,
+            ctxt_manager = Deployment(uses=ServedExecutor,
+                                      port=port,
+                                      protocol=protocol,
                                       shards=shards,
-                                      replicas=replicas, stateful=stateful, workspace=workspace, **kwargs)
+                                      replicas=replicas,
+                                      stateful=stateful,
+                                      peer_ports=peer_ports,
+                                      workspace=workspace,
+                                      **kwargs)
         else:
             ctxt_manager = Flow(port=port, protocol=protocol, **kwargs).add(uses=ServedExecutor,
                                                                             shards=shards,
                                                                             replicas=replicas,
-                                                                            stateful=stateful, workspace=workspace)
+                                                                            stateful=stateful,
+                                                                            peer_ports=peer_ports,
+                                                                            workspace=workspace)
 
         return Service(ctxt_manager)
 
