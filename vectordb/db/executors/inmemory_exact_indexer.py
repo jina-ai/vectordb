@@ -1,31 +1,63 @@
-from vectordb.db.executors.typed_executor import TypedExecutor
-from jina import requests
-from jina.serve.executors.decorators import write
 from docarray.index import InMemoryExactNNIndex
+from docarray import DocList
+from jina.serve.executors.decorators import requests, write
+
+from vectordb.db.executors.typed_executor import TypedExecutor
 
 
 class InMemoryExactNNIndexer(TypedExecutor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._index = InMemoryExactNNIndex[self._schema]()
-        self.logger.debug(f'self._index {self._index} and {self.requests}')
+        self._index_file_path = f'{self.workspace}/index.bin' if self.handle_persistence else None
+        self._index = InMemoryExactNNIndex[self._input_schema](index_file_path=self._index_file_path)
 
     @write
     @requests(on='/index')
-    def index(self, docs, parameters, **kwargs):
-        self.logger.debug(f'INDEX')
+    def index(self, docs, *args, **kwargs):
+        self.logger.debug(f'Index {len(docs)}')
+        self._index.index(docs)
+
+    @requests(on='/search')
+    def search(self, docs, *args, **kwargs):
+        self.logger.debug(f'Search {len(docs)}')
+        res = DocList[self._output_schema]()
+        ret = self._index.find_batched(docs, search_field='embedding')
+        matched_documents = ret.documents
+        matched_scores = ret.scores
+        assert len(docs) == len(matched_documents) == len(matched_scores)
+
+        for query, matches, scores in zip(docs, matched_documents, matched_scores):
+            output_doc = self._output_schema(**query.dict())
+            output_doc.matches = matches
+            output_doc.scores = scores.tolist()
+            res.append(output_doc)
+        return res
 
     @write
     @requests(on='/update')
-    def update(self, docs, parameters, **kwargs):
-        self.logger.debug(f'UPDATE')
+    def update(self, docs, *args, **kwargs):
+        self.logger.debug(f'Update')
+        self.delete(docs)
+        self.index(docs)
 
     @write
     @requests(on='/delete')
-    def delete(self, docs, parameters, **kwargs):
-        self.logger.debug(f'DELETE')
+    def delete(self, docs, *args, **kwargs):
+        self.logger.debug(f'Delete')
+        del self._index[[doc.id for doc in docs]]
 
-    @requests(on='/delete')
-    def search(self, docs, parameters, **kwargs):
-        self.logger.debug(f'SEARCH')
+    def num_docs(self, *args, **kwargs):
+        return {'num_docs': self._index.num_docs()}
+
+    def snapshot(self, snapshot_dir):
+        snapshot_file = f'{snapshot_dir}/index.bin'
+        self._index.persist(snapshot_file)
+
+    def restore(self, snapshot_dir):
+        snapshot_file = f'{snapshot_dir}/index.bin'
+        self._index = InMemoryExactNNIndex[self._input_schema](index_file_path=snapshot_file)
+
+    def close(self):
+        if self._index_file_path is not None:
+            self._index.persist(self._index_file_path)

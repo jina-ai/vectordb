@@ -1,35 +1,28 @@
-from vectordb.client.client import Client
+from vectordb.utils.unify_input_output import unify_input_output
 
 
-class Service:
+class Client:
 
     def __init__(self, ctxt_manager):
-        self.ctxt_manager = ctxt_manager
-        self._client = Client(ctxt_manager)
+        self._client = ctxt_manager.client
 
-    def __enter__(self):
-        return self.ctxt_manager.__enter__()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        return self.ctxt_manager.__exit__(exc_type, exc_val, exc_tb)
-
-    def block(self):
-        return self.ctxt_manager.block()
-
-    def client(self):
-        return self._client
-
+    @unify_input_output
     def index(self, *args, **kwargs):
         return self._client.index(*args, **kwargs)
 
+    @unify_input_output
     def search(self, *args, **kwargs):
+        # potentially unwrap the return
         return self._client.search(*args, **kwargs)
 
+    @unify_input_output
     def delete(self, *args, **kwargs):
         return self._client.delete(*args, **kwargs)
 
+    @unify_input_output
     def update(self, *args, **kwargs):
         return self._client.update(*args, **kwargs)
 
+    @unify_input_output
     def post(self, *args, **kwargs):
         return self._client.index(*args, **kwargs)

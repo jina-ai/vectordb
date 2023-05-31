@@ -1,8 +1,10 @@
 from jina import Deployment, Flow
 from docarray import BaseDoc, DocList
-from typing import TypeVar, Generic, Type, Optional, Union, List, Dict, Any
+from typing import TypeVar, Generic, Type, Optional, Union, List, Dict
 from vectordb.db.executors.typed_executor import TypedExecutor
 from vectordb.db.service import Service
+from vectordb.utils.create_doc_type import create_output_doc_type
+from vectordb.utils.unify_input_output import unify_input_output
 
 TSchema = TypeVar('TSchema', bound=BaseDoc)
 
@@ -12,7 +14,8 @@ REQUESTS_MAP = {'/index': 'index', '/update': 'update', '/delete': 'delete', '/s
 class VectorDB(Generic[TSchema]):
     # the BaseDoc that defines the schema of the store
     # for subclasses this is filled automatically
-    _schema: Optional[Type[BaseDoc]] = None
+    _input_schema: Optional[Type[BaseDoc]] = None
+    _output_schema: Optional[Type[BaseDoc]] = None
     _executor_type: Optional[Type[TypedExecutor]] = None
     _executor_cls: Type[TypedExecutor]
 
@@ -30,9 +33,12 @@ class VectorDB(Generic[TSchema]):
                 f'{cls.__name__}[item] `item` should be a Document not a {item} '
             )
 
+        out_item = create_output_doc_type(item)
+
         class VectorDBTyped(cls):  # type: ignore
-            _schema: Type[TSchema] = item
-            _executor_cls: Type[TypedExecutor] = cls._executor_type[item]
+            _input_schema: Type[TSchema] = item
+            _output_schema: Type[TSchema] = out_item
+            _executor_cls: Type[TypedExecutor] = cls._executor_type[item, out_item]
 
         VectorDBTyped.__name__ = f'{cls.__name__}[{item.__name__}]'
         VectorDBTyped.__qualname__ = f'{cls.__qualname__}[{item.__name__}]'
@@ -48,48 +54,88 @@ class VectorDB(Generic[TSchema]):
     def serve(cls,
               *,
               port: Optional[Union[str, List[str]]] = 8081,
-              config: Optional[Dict[str, Any]] = {},
+              workspace: Optional[str] = None,
               protocol: Optional[Union[str, List[str]]] = None,
               shards: Optional[int] = None,
               replicas: Optional[int] = None,
+              peer_ports: Optional[Union[Dict[str, List], List]] = None,
               **kwargs):
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
         stateful = replicas is not None and replicas > 1
+        executor_cls_name = ''.join(cls._executor_cls.__name__.split('[')[0:2])
+        ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
+                              {})
+        if 1 < replicas < 3:
+            raise Exception(f'In order for consensus to properly work, at least 3 replicas need to be provided.')
+
+        if peer_ports is None and stateful is True:
+            peer_ports = {}
+            if shards is not None:
+                for shard in range(shards):
+                    peer_ports[str(shard)] = [8081 + (shard + 1) * (replica + 1) for replica in range(replicas)]
+            else:
+                peer_ports['0'] = [8081 + (replica + 1) for replica in range(replicas)]
+
+        if stateful is True:
+            if shards is not None:
+                assert len(peer_ports.keys()) == shards, 'Need to provide `peer_ports` information for each shard'
+            for shard in peer_ports.keys():
+                assert len(peer_ports[str(
+                    shard)]) == replicas, f'For shard {shard}, need to provide ports for each replica ({replicas} replicas), got {len(peer_ports[str(shard)])} instead'
+
         if 'stateful' in kwargs:
             kwargs.pop('stateful')
 
         if 'websocket' not in protocol_list and (shards == 1 or 'http' not in protocol_list):
-            ctxt_manager = Deployment(uses=cls._executor_cls, uses_with=config, port=port, protocol=protocol,
+            ctxt_manager = Deployment(uses=ServedExecutor,
+                                      port=port,
+                                      protocol=protocol,
                                       shards=shards,
-                                      replicas=replicas, stateful=stateful, **kwargs)
+                                      replicas=replicas,
+                                      stateful=stateful,
+                                      peer_ports=peer_ports,
+                                      workspace=workspace,
+                                      **kwargs)
         else:
-            ctxt_manager = Flow(port=port, protocol=protocol, **kwargs).add(uses=cls._executor_cls,
-                                                                            uses_with=config,
-                                                                            shards=shards, replicas=replicas,
-                                                                            stateful=stateful)
+            ctxt_manager = Flow(port=port, protocol=protocol, **kwargs).add(uses=ServedExecutor,
+                                                                            shards=shards,
+                                                                            replicas=replicas,
+                                                                            stateful=stateful,
+                                                                            peer_ports=peer_ports,
+                                                                            workspace=workspace)
 
         return Service(ctxt_manager)
 
+    @unify_input_output
     def index(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
         params = parameters or {}
         for k, v in kwargs.items():
             params[k] = v
         return self._executor.index(docs, params)
 
+    @unify_input_output
     def update(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
+        if isinstance(docs, BaseDoc):
+            docs = [docs]
         params = parameters or {}
         for k, v in kwargs.items():
             params[k] = v
         return self._executor.update(docs, params)
 
+    @unify_input_output
     def delete(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
+        if isinstance(docs, BaseDoc):
+            docs = [docs]
         params = parameters or {}
         for k, v in kwargs.items():
             params[k] = v
         return self._executor.delete(docs, params)
 
+    @unify_input_output
     def search(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
+        if isinstance(docs, BaseDoc):
+            docs = [docs]
         params = parameters or {}
         for k, v in kwargs.items():
             params[k] = v

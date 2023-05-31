@@ -1,2 +1,2 @@
 jina
-docarray[hnswlib]
+docarray[hnswlib]>=0.32.0
