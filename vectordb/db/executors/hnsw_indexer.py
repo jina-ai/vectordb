@@ -1,3 +1,6 @@
+import random
+import string
+
 from docarray.index import HnswDocumentIndex
 from docarray import DocList
 from jina.serve.executors.decorators import requests, write
@@ -9,6 +12,7 @@ class HNSWLibIndexer(TypedExecutor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.work_dir = f'{self.workspace}' if self.handle_persistence else f'{self.workspace}/{"".join(random.choice(string.ascii_lowercase) for _ in range(5))}'
         db_config = HnswDocumentIndex.DBConfig
         db_config.work_dir = self.workspace
         db_config.index_name = 'index'
@@ -61,8 +65,8 @@ class HNSWLibIndexer(TypedExecutor):
         return {'num_docs': self._index.num_docs()}
 
     def snapshot(self, snapshot_dir):
-        snapshot_file = f'{snapshot_dir}/index.bin'
-        self._index.persist(snapshot_file)
+        #TODO: Maybe copy the work_dir to workspace if `handle` is False
+        raise NotImplementedError('Act as not implemented')
 
     def restore(self, snapshot_dir):
         self._index = HnswDocumentIndex[self._input_schema](work_dir=snapshot_dir, index_name='index')

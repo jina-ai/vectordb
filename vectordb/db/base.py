@@ -4,6 +4,7 @@ from typing import TypeVar, Generic, Type, Optional, Union, List, Dict
 from vectordb.db.executors.typed_executor import TypedExecutor
 from vectordb.db.service import Service
 from vectordb.utils.create_doc_type import create_output_doc_type
+from vectordb.utils.unify_input_output import unify_input_output
 
 TSchema = TypeVar('TSchema', bound=BaseDoc)
 
@@ -106,25 +107,35 @@ class VectorDB(Generic[TSchema]):
 
         return Service(ctxt_manager)
 
+    @unify_input_output
     def index(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
         params = parameters or {}
         for k, v in kwargs.items():
             params[k] = v
         return self._executor.index(docs, params)
 
+    @unify_input_output
     def update(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
+        if isinstance(docs, BaseDoc):
+            docs = [docs]
         params = parameters or {}
         for k, v in kwargs.items():
             params[k] = v
         return self._executor.update(docs, params)
 
+    @unify_input_output
     def delete(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
+        if isinstance(docs, BaseDoc):
+            docs = [docs]
         params = parameters or {}
         for k, v in kwargs.items():
             params[k] = v
         return self._executor.delete(docs, params)
 
+    @unify_input_output
     def search(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
+        if isinstance(docs, BaseDoc):
+            docs = [docs]
         params = parameters or {}
         for k, v in kwargs.items():
             params[k] = v

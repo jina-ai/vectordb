@@ -18,7 +18,7 @@ class TypedExecutor(Executor, Generic[InputSchema, OutputSchema]):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._num_replicas = getattr(self.runtime_args, 'replicas')
+        self._num_replicas = getattr(self.runtime_args, 'replicas', 1)
         for k, v in self._requests.items():
             if k != '/search':
                 self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
