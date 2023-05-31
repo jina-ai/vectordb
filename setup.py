@@ -32,6 +32,7 @@ setup(
         'test': [
             'pytest',
             'pytest-asyncio',
+            'monkeypatch'
         ],
     },
     install_requires=requirements,

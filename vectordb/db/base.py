@@ -46,8 +46,13 @@ class VectorDB(Generic[TSchema]):
         return VectorDBTyped
 
     def __init__(self, *args, **kwargs):
+        if 'work_dir' in kwargs:
+            self._workspace = kwargs['work_dir']
+        if 'workspace' in kwargs:
+            self._workspace = kwargs['workspace']
         self._uses_with = kwargs
         kwargs['requests'] = REQUESTS_MAP
+        kwargs['runtime_args'] = {'workspace': self._workspace}
         self._executor = self._executor_cls(*args, **kwargs)
 
     @classmethod

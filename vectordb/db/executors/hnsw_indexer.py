@@ -19,15 +19,16 @@ class HNSWLibIndexer(TypedExecutor):
         self._index = HnswDocumentIndex[self._input_schema](work_dir=self.workspace, index_name='index')
 
     def index(self, docs, *args, **kwargs):
-        self.logger.debug(f'Index')
+        self.logger.debug(f'Index {len(docs)}')
         self._index.index(docs)
+        return docs
 
     @write
     @requests(on='/index')
     async def async_index(self, docs, *args, **kwargs):
         # Index does not work on a separate thread, this is why we need to call async
         self.logger.debug(f'Async Index')
-        self.index(docs)
+        return self.index(docs)
 
     def search(self, docs, *args, **kwargs):
         self.logger.debug(f'Search')
@@ -48,24 +49,26 @@ class HNSWLibIndexer(TypedExecutor):
     async def async_search(self, docs, *args, **kwargs):
         return self.search(docs, *args, **kwargs)
 
-    @write
-    @requests(on='/update')
-    def update(self, docs, *args, **kwargs):
-        self.logger.debug(f'Update')
-        self.delete(docs)
-        self.index(docs)
+    def _delete(self, docs, *args, **kwargs):
+        del self._index[[doc.id for doc in docs]]
+        return docs
 
     @write
     @requests(on='/delete')
     def delete(self, docs, *args, **kwargs):
         self.logger.debug(f'Delete')
-        del self._index[[doc.id for doc in docs]]
+        return self._delete(docs, *args, **kwargs)
+
+    @write
+    @requests(on='/update')
+    def update(self, docs, *args, **kwargs):
+        return self.index(docs, *args, **kwargs)
 
     def num_docs(self, **kwargs):
         return {'num_docs': self._index.num_docs()}
 
     def snapshot(self, snapshot_dir):
-        #TODO: Maybe copy the work_dir to workspace if `handle` is False
+        # TODO: Maybe copy the work_dir to workspace if `handle` is False
         raise NotImplementedError('Act as not implemented')
 
     def restore(self, snapshot_dir):
