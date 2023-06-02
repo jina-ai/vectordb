@@ -40,20 +40,21 @@ def test_hnswlib_vectordb_batch(docs_to_index, call_method, tmpdir):
         assert res.scores[0] < 0.001  # some precision issues, should be 0.0
 
 
+@pytest.mark.parametrize('limit', [1, 10, 2000, 2500])
 @pytest.mark.parametrize('call_method', ['docs', 'inputs', 'positional'])
-def test_hnswlib_vectordb_single_query(docs_to_index, call_method, tmpdir):
+def test_hnswlib_vectordb_single_query(docs_to_index, limit, call_method, tmpdir):
     query = docs_to_index[100]
     indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
     if call_method == 'docs':
         indexer.index(docs=docs_to_index)
-        resp = indexer.search(docs=query)
+        resp = indexer.search(docs=query, limit=limit)
     elif call_method == 'inputs':
         indexer.index(inputs=docs_to_index)
-        resp = indexer.search(inputs=query)
+        resp = indexer.search(inputs=query, limit=limit)
     elif call_method == 'positional':
         indexer.index(docs_to_index)
-        resp = indexer.search(query)
-    assert len(resp.matches) == 10
+        resp = indexer.search(query, limit=limit)
+    assert len(resp.matches) == min(limit, len(docs_to_index))
     assert resp.id == resp.matches[0].id
     assert resp.text == resp.matches[0].text
     assert resp.scores[0] < 0.001  # some precision issues, should be 0.0

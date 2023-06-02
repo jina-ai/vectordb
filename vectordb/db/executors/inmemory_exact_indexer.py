@@ -1,13 +1,17 @@
-from docarray.index import InMemoryExactNNIndex
-from docarray import DocList
-from jina.serve.executors.decorators import requests, write
+from typing import TYPE_CHECKING
 
 from vectordb.db.executors.typed_executor import TypedExecutor
+from jina.serve.executors.decorators import requests, write
+
+if TYPE_CHECKING:
+    from docarray.index import InMemoryExactNNIndex
+    from docarray import DocList
 
 
 class InMemoryExactNNIndexer(TypedExecutor):
 
     def __init__(self, *args, **kwargs):
+        from docarray.index import InMemoryExactNNIndex
         super().__init__(*args, **kwargs)
         self._index_file_path = f'{self.workspace}/index.bin' if self.handle_persistence else None
         self._indexer = InMemoryExactNNIndex[self._input_schema](index_file_path=self._index_file_path)
@@ -22,9 +26,13 @@ class InMemoryExactNNIndexer(TypedExecutor):
         self.logger.debug(f'Index {len(docs)}')
         return self._index(docs, *args, **kwargs)
 
-    def _search(self, docs, *args, **kwargs):
+    def _search(self, docs, parameters, *args, **kwargs):
+        from docarray import DocList
         res = DocList[self._output_schema]()
-        ret = self._indexer.find_batched(docs, search_field='embedding')
+        search_field = 'embedding'
+        if 'search_field' in parameters:
+            search_field = parameters.pop('search_field')
+        ret = self._indexer.find_batched(docs, search_field=search_field, **parameters)
         matched_documents = ret.documents
         matched_scores = ret.scores
         assert len(docs) == len(matched_documents) == len(matched_scores)
@@ -65,6 +73,7 @@ class InMemoryExactNNIndexer(TypedExecutor):
         self._indexer.persist(snapshot_file)
 
     def restore(self, snapshot_dir):
+        from docarray.index import InMemoryExactNNIndex
         snapshot_file = f'{snapshot_dir}/index.bin'
         self._indexer = InMemoryExactNNIndex[self._input_schema](index_file_path=snapshot_file)
 

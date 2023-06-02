@@ -1,16 +1,20 @@
 import random
 import string
 
-from docarray.index import HnswDocumentIndex
-from docarray import DocList
-from jina.serve.executors.decorators import requests, write
+from typing import TYPE_CHECKING
 
 from vectordb.db.executors.typed_executor import TypedExecutor
+from jina.serve.executors.decorators import requests, write
+
+if TYPE_CHECKING:
+    from docarray.index import HnswDocumentIndex
+    from docarray import DocList
 
 
 class HNSWLibIndexer(TypedExecutor):
 
     def __init__(self, *args, **kwargs):
+        from docarray.index import HnswDocumentIndex
         super().__init__(*args, **kwargs)
         self.work_dir = f'{self.workspace}' if self.handle_persistence else f'{self.workspace}/{"".join(random.choice(string.ascii_lowercase) for _ in range(5))}'
         db_config = HnswDocumentIndex.DBConfig
@@ -30,10 +34,15 @@ class HNSWLibIndexer(TypedExecutor):
         self.logger.debug(f'Async Index')
         return self.index(docs)
 
-    def search(self, docs, *args, **kwargs):
+    def search(self, docs, parameters, *args, **kwargs):
+        from docarray import DocList
         self.logger.debug(f'Search')
         res = DocList[self._output_schema]()
-        ret = self._index.find_batched(docs, search_field='embedding')
+        search_field = 'embedding'
+        if 'search_field' in parameters:
+            search_field = parameters.pop('search_field')
+
+        ret = self._index.find_batched(docs, search_field=search_field, **parameters)
         matched_documents = ret.documents
         matched_scores = ret.scores
         assert len(docs) == len(matched_documents) == len(matched_scores)
@@ -72,6 +81,7 @@ class HNSWLibIndexer(TypedExecutor):
         raise NotImplementedError('Act as not implemented')
 
     def restore(self, snapshot_dir):
+        from docarray.index import HnswDocumentIndex
         self._index = HnswDocumentIndex[self._input_schema](work_dir=snapshot_dir, index_name='index')
 
     def close(self):

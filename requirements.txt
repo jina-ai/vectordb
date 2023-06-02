@@ -1,2 +1,2 @@
-jina
-docarray[hnswlib]>=0.32.0
+jina>=3.16.0
+#docarray[hnswlib]>=0.32.0
