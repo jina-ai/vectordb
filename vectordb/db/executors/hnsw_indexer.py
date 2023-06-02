@@ -39,10 +39,12 @@ class HNSWLibIndexer(TypedExecutor):
         self.logger.debug(f'Search')
         res = DocList[self._output_schema]()
         search_field = 'embedding'
-        if 'search_field' in parameters:
+        if parameters is not None and 'search_field' in parameters:
             search_field = parameters.pop('search_field')
 
-        ret = self._index.find_batched(docs, search_field=search_field, **parameters)
+        params = parameters or {}
+
+        ret = self._index.find_batched(docs, search_field=search_field, **params)
         matched_documents = ret.documents
         matched_scores = ret.scores
         assert len(docs) == len(matched_documents) == len(matched_scores)

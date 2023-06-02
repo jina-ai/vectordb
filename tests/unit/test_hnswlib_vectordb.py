@@ -60,6 +60,25 @@ def test_hnswlib_vectordb_single_query(docs_to_index, limit, call_method, tmpdir
     assert resp.scores[0] < 0.001  # some precision issues, should be 0.0
 
 
+def test_hnswlib_vectordb_search_field(tmpdir):
+    class MyDocTens(BaseDoc):
+        text: str
+        tens: NdArray[128]
+
+    docs_to_index = DocList[MyDocTens](
+        [MyDocTens(text="".join(random.choice(string.ascii_lowercase) for _ in range(5)), tens=np.random.rand(128))
+         for _ in range(2000)])
+
+    query = docs_to_index[100]
+    indexer = HNSWVectorDB[MyDocTens](workspace=str(tmpdir))
+    indexer.index(docs=docs_to_index)
+    resp = indexer.search(docs=query, search_field='tens')
+    assert len(resp.matches) == 10
+    assert resp.id == resp.matches[0].id
+    assert resp.text == resp.matches[0].text
+    assert resp.scores[0] < 0.001  # some precision issues, should be 0.0
+
+
 @pytest.mark.parametrize('call_method', ['docs', 'inputs', 'positional'])
 def test_hnswlib_vectordb_delete(docs_to_index, call_method, tmpdir):
     query = docs_to_index[0]
