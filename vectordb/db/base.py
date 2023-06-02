@@ -1,12 +1,15 @@
-from jina import Deployment, Flow
-from docarray import BaseDoc, DocList
-from typing import TypeVar, Generic, Type, Optional, Union, List, Dict
+from typing import TypeVar, Generic, Type, Optional, Union, List, Dict, TYPE_CHECKING
 from vectordb.db.executors.typed_executor import TypedExecutor
 from vectordb.db.service import Service
 from vectordb.utils.create_doc_type import create_output_doc_type
 from vectordb.utils.unify_input_output import unify_input_output
+from vectordb.utils.pass_parameters import pass_kwargs_as_params
 
-TSchema = TypeVar('TSchema', bound=BaseDoc)
+if TYPE_CHECKING:
+    from jina import Deployment, Flow
+    from docarray import BaseDoc, DocList
+
+TSchema = TypeVar('TSchema', bound='BaseDoc')
 
 REQUESTS_MAP = {'/index': 'index', '/update': 'update', '/delete': 'delete', '/search': 'search'}
 
@@ -14,8 +17,8 @@ REQUESTS_MAP = {'/index': 'index', '/update': 'update', '/delete': 'delete', '/s
 class VectorDB(Generic[TSchema]):
     # the BaseDoc that defines the schema of the store
     # for subclasses this is filled automatically
-    _input_schema: Optional[Type[BaseDoc]] = None
-    _output_schema: Optional[Type[BaseDoc]] = None
+    _input_schema: Optional[Type['BaseDoc']] = None
+    _output_schema: Optional[Type['BaseDoc']] = None
     _executor_type: Optional[Type[TypedExecutor]] = None
     _executor_cls: Type[TypedExecutor]
 
@@ -24,6 +27,7 @@ class VectorDB(Generic[TSchema]):
     # Subclasses should not need to implement these  #
     ##################################################
     def __class_getitem__(cls, item: Type[TSchema]):
+        from docarray import BaseDoc
         if not isinstance(item, type):
             # do nothing
             # enables use in static contexts with type vars, e.g. as type annotation
@@ -46,8 +50,13 @@ class VectorDB(Generic[TSchema]):
         return VectorDBTyped
 
     def __init__(self, *args, **kwargs):
+        if 'work_dir' in kwargs:
+            self._workspace = kwargs['work_dir']
+        if 'workspace' in kwargs:
+            self._workspace = kwargs['workspace']
         self._uses_with = kwargs
         kwargs['requests'] = REQUESTS_MAP
+        kwargs['runtime_args'] = {'workspace': self._workspace}
         self._executor = self._executor_cls(*args, **kwargs)
 
     @classmethod
@@ -107,36 +116,22 @@ class VectorDB(Generic[TSchema]):
 
         return Service(ctxt_manager)
 
+    @pass_kwargs_as_params
     @unify_input_output
     def index(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
-        params = parameters or {}
-        for k, v in kwargs.items():
-            params[k] = v
-        return self._executor.index(docs, params)
+        return self._executor.index(docs, parameters)
 
+    @pass_kwargs_as_params
     @unify_input_output
     def update(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
-        if isinstance(docs, BaseDoc):
-            docs = [docs]
-        params = parameters or {}
-        for k, v in kwargs.items():
-            params[k] = v
-        return self._executor.update(docs, params)
+        return self._executor.update(docs, parameters)
 
+    @pass_kwargs_as_params
     @unify_input_output
     def delete(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
-        if isinstance(docs, BaseDoc):
-            docs = [docs]
-        params = parameters or {}
-        for k, v in kwargs.items():
-            params[k] = v
-        return self._executor.delete(docs, params)
+        return self._executor.delete(docs, parameters)
 
+    @pass_kwargs_as_params
     @unify_input_output
     def search(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
-        if isinstance(docs, BaseDoc):
-            docs = [docs]
-        params = parameters or {}
-        for k, v in kwargs.items():
-            params[k] = v
-        return self._executor.search(docs, params)
+        return self._executor.search(docs, parameters)

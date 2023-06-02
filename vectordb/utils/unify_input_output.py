@@ -1,5 +1,5 @@
 import inspect
-from docarray import BaseDoc, DocList
+
 
 INPUTS = 'inputs'
 DOCS = 'docs'
@@ -14,6 +14,7 @@ def unify_input_output(func):
     expected_key = DOCS if DOCS in func_args else INPUTS
 
     def wrapper(*args, **kwargs):
+        from docarray import DocList, BaseDoc
         return_single = False
         present_key = None
         if DOCS in kwargs:
@@ -30,11 +31,12 @@ def unify_input_output(func):
             return_single = True
             docs = DocList.__class_getitem__(docs.__class__)([docs])
             if present_key is None:
-                new_args = (args[0], docs, args[2:])
+                new_args = (args[0], docs)
             else:
                 kwargs[expected_key] = docs
         elif present_key is not None and expected_key != present_key:
             kwargs[expected_key] = docs
+
         ret = func(*new_args, **kwargs)
         if return_single:
             return ret[0]

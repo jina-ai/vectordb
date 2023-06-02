@@ -32,7 +32,11 @@ setup(
         'test': [
             'pytest',
             'pytest-asyncio',
+            'monkeypatch'
         ],
     },
     install_requires=requirements,
 )
+
+import subprocess
+subprocess.run(['pip', 'install', 'docarray[hnswlib]>=0.32.0'])

@@ -1,28 +1,38 @@
-from docarray.index import InMemoryExactNNIndex
-from docarray import DocList
-from jina.serve.executors.decorators import requests, write
+from typing import TYPE_CHECKING
 
 from vectordb.db.executors.typed_executor import TypedExecutor
+from jina.serve.executors.decorators import requests, write
+
+if TYPE_CHECKING:
+    from docarray.index import InMemoryExactNNIndex
+    from docarray import DocList
 
 
 class InMemoryExactNNIndexer(TypedExecutor):
 
     def __init__(self, *args, **kwargs):
+        from docarray.index import InMemoryExactNNIndex
         super().__init__(*args, **kwargs)
         self._index_file_path = f'{self.workspace}/index.bin' if self.handle_persistence else None
-        self._index = InMemoryExactNNIndex[self._input_schema](index_file_path=self._index_file_path)
+        self._indexer = InMemoryExactNNIndex[self._input_schema](index_file_path=self._index_file_path)
+
+    def _index(self, docs, *args, **kwargs):
+        self._indexer.index(docs)
+        return docs
 
     @write
     @requests(on='/index')
     def index(self, docs, *args, **kwargs):
         self.logger.debug(f'Index {len(docs)}')
-        self._index.index(docs)
+        return self._index(docs, *args, **kwargs)
 
-    @requests(on='/search')
-    def search(self, docs, *args, **kwargs):
-        self.logger.debug(f'Search {len(docs)}')
+    def _search(self, docs, parameters, *args, **kwargs):
+        from docarray import DocList
         res = DocList[self._output_schema]()
-        ret = self._index.find_batched(docs, search_field='embedding')
+        search_field = 'embedding'
+        if 'search_field' in parameters:
+            search_field = parameters.pop('search_field')
+        ret = self._indexer.find_batched(docs, search_field=search_field, **parameters)
         matched_documents = ret.documents
         matched_scores = ret.scores
         assert len(docs) == len(matched_documents) == len(matched_scores)
@@ -34,30 +44,39 @@ class InMemoryExactNNIndexer(TypedExecutor):
             res.append(output_doc)
         return res
 
-    @write
-    @requests(on='/update')
-    def update(self, docs, *args, **kwargs):
-        self.logger.debug(f'Update')
-        self.delete(docs)
-        self.index(docs)
+    @requests(on='/search')
+    def search(self, docs, *args, **kwargs):
+        self.logger.debug(f'Search {len(docs)}')
+        return self._search(docs, *args, **kwargs)
+
+    def _delete(self, docs, *args, **kwargs):
+        del self._indexer[[doc.id for doc in docs]]
+        return docs
 
     @write
     @requests(on='/delete')
     def delete(self, docs, *args, **kwargs):
         self.logger.debug(f'Delete')
-        del self._index[[doc.id for doc in docs]]
+        return self._delete(docs, *args, **kwargs)
+
+    @write
+    @requests(on='/update')
+    def update(self, docs, *args, **kwargs):
+        self._delete(docs)
+        return self._index(docs)
 
     def num_docs(self, *args, **kwargs):
         return {'num_docs': self._index.num_docs()}
 
     def snapshot(self, snapshot_dir):
         snapshot_file = f'{snapshot_dir}/index.bin'
-        self._index.persist(snapshot_file)
+        self._indexer.persist(snapshot_file)
 
     def restore(self, snapshot_dir):
+        from docarray.index import InMemoryExactNNIndex
         snapshot_file = f'{snapshot_dir}/index.bin'
-        self._index = InMemoryExactNNIndex[self._input_schema](index_file_path=snapshot_file)
+        self._indexer = InMemoryExactNNIndex[self._input_schema](index_file_path=snapshot_file)
 
     def close(self):
         if self._index_file_path is not None:
-            self._index.persist(self._index_file_path)
+            self._indexer.persist(self._index_file_path)

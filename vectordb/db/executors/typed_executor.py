@@ -1,11 +1,15 @@
 from jina import Executor
 from jina.serve.executors import _FunctionWithSchema
 
-from docarray import BaseDoc, DocList
-from typing import TypeVar, Generic, Type, Optional, Tuple
+from typing import TypeVar, Generic, Type, Optional, Tuple, TYPE_CHECKING
 
-InputSchema = TypeVar('InputSchema', bound=BaseDoc)
-OutputSchema = TypeVar('OutputSchema', bound=BaseDoc)
+if TYPE_CHECKING:
+    from docarray import BaseDoc, DocList
+
+TSchema = TypeVar('TSchema', bound='BaseDoc')
+
+InputSchema = TypeVar('InputSchema', bound='BaseDoc')
+OutputSchema = TypeVar('OutputSchema', bound='BaseDoc')
 
 methods = ['/index', '/update', '/delete', '/search']
 
@@ -13,11 +17,12 @@ methods = ['/index', '/update', '/delete', '/search']
 class TypedExecutor(Executor, Generic[InputSchema, OutputSchema]):
     # the BaseDoc that defines the schema of the store
     # for subclasses this is filled automatically
-    _input_schema: Optional[Type[BaseDoc]] = None
-    _output_schema: Optional[Type[BaseDoc]] = None
+    _input_schema: Optional[Type['BaseDoc']] = None
+    _output_schema: Optional[Type['BaseDoc']] = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        from docarray import DocList
         self._num_replicas = getattr(self.runtime_args, 'replicas', 1)
         for k, v in self._requests.items():
             if k != '/search':
@@ -36,6 +41,7 @@ class TypedExecutor(Executor, Generic[InputSchema, OutputSchema]):
     # Subclasses should not need to implement these  #
     ##################################################
     def __class_getitem__(cls, item: Tuple[Type[InputSchema], Type[OutputSchema]]):
+        from docarray import BaseDoc
         input_schema, output_schema = item
         if not issubclass(input_schema, BaseDoc):
             raise ValueError(
