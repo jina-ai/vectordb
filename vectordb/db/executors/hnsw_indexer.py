@@ -16,11 +16,9 @@ class HNSWLibIndexer(TypedExecutor):
     def __init__(self, *args, **kwargs):
         from docarray.index import HnswDocumentIndex
         super().__init__(*args, **kwargs)
-        self.work_dir = f'{self.workspace}' if self.handle_persistence else f'{self.workspace}/{"".join(random.choice(string.ascii_lowercase) for _ in range(5))}'
-        db_config = HnswDocumentIndex.DBConfig
-        db_config.work_dir = self.workspace
-        db_config.index_name = 'index'
-        self._index = HnswDocumentIndex[self._input_schema](work_dir=self.workspace, index_name='index')
+        workspace = self.workspace.replace('[', '_').replace(']', '_')
+        self.work_dir = f'{workspace}' if self.handle_persistence else f'{workspace}/{"".join(random.choice(string.ascii_lowercase) for _ in range(5))}'
+        self._index = HnswDocumentIndex[self._input_schema](work_dir=self.work_dir)
 
     def index(self, docs, *args, **kwargs):
         self.logger.debug(f'Index {len(docs)}')
@@ -87,5 +85,4 @@ class HNSWLibIndexer(TypedExecutor):
         self._index = HnswDocumentIndex[self._input_schema](work_dir=snapshot_dir, index_name='index')
 
     def close(self):
-        if self._index_file_path is not None:
-            self._index.persist(self._index_file_path)
+        pass

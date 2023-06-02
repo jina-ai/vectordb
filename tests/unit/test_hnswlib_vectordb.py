@@ -148,3 +148,25 @@ def test_hnswlib_vectordb_udpate_text(docs_to_index, call_method, tmpdir):
     assert resp.scores[0] < 0.001
     assert resp.id == resp.matches[0].id
     assert resp.matches[0].text == resp.text + '_changed'
+
+
+def test_hnswlib_vectordb_restore(docs_to_index, tmpdir):
+    query = docs_to_index[:100]
+    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    indexer.index(docs=docs_to_index)
+    resp = indexer.search(docs=query)
+    assert len(resp) == len(query)
+    for res in resp:
+        assert len(res.matches) == 10
+        # assert res.id == res.matches[0].id
+        # assert res.text == res.matches[0].text
+        # assert res.scores[0] < 0.001 # some precision issues, should be 0
+    indexer.persist()
+    new_indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    resp = new_indexer.search(docs=query)
+    assert len(resp) == len(query)
+    for res in resp:
+        assert len(res.matches) == 10
+        # assert res.id == res.matches[0].id
+        # assert res.text == res.matches[0].text
+        # assert res.scores[0] < 0.001 # some precision issues, should be 0

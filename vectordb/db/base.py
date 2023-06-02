@@ -135,3 +135,6 @@ class VectorDB(Generic[TSchema]):
     @unify_input_output
     def search(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
         return self._executor.search(docs, parameters)
+
+    def persist(self):
+        return self._executor.close()
