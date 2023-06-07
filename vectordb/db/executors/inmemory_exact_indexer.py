@@ -34,6 +34,8 @@ class InMemoryExactNNIndexer(TypedExecutor):
             search_field = parameters.pop('search_field')
 
         params = parameters or {}
+        if '__results__' in params:
+            params.pop('__results__')
         ret = self._indexer.find_batched(docs, search_field=search_field, **params)
         matched_documents = ret.documents
         matched_scores = ret.scores
@@ -64,6 +66,7 @@ class InMemoryExactNNIndexer(TypedExecutor):
     @write
     @requests(on='/update')
     def update(self, docs, *args, **kwargs):
+        # If not present, delete will raise IndexError and nothing will happen
         self._delete(docs)
         return self._index(docs)
 

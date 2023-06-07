@@ -1,5 +1,6 @@
 INPUTS = 'inputs'
 DOCS = 'docs'
+RETURN_TYPE = 'return_type'
 
 
 def pass_kwargs_as_params(func):
@@ -12,12 +13,13 @@ def pass_kwargs_as_params(func):
 
         params = parameters or {}
         for k, v in kwargs.items():
-            if k not in {INPUTS, DOCS}:
+            if k not in {INPUTS, DOCS, RETURN_TYPE}:
                 params[k] = kwargs[k]
         if len(params.keys()) > 0:
             for k in params.keys():
                 kwargs.pop(k)
             kwargs['parameters'] = params
+
         return func(*args, **kwargs)
 
     return wrapper

@@ -18,18 +18,20 @@ class HNSWLibIndexer(TypedExecutor):
         super().__init__(*args, **kwargs)
         workspace = self.workspace.replace('[', '_').replace(']', '_')
         self.work_dir = f'{workspace}' if self.handle_persistence else f'{workspace}/{"".join(random.choice(string.ascii_lowercase) for _ in range(5))}'
-        self._index = HnswDocumentIndex[self._input_schema](work_dir=self.work_dir)
+        self._indexer = HnswDocumentIndex[self._input_schema](work_dir=self.work_dir)
+
+    def _index(self, docs, *args, **kwargs):
+        self._indexer.index(docs)
+        return docs
 
     def index(self, docs, *args, **kwargs):
         self.logger.debug(f'Index {len(docs)}')
-        self._index.index(docs)
-        return docs
+        return self._index(docs)
 
     @write
     @requests(on='/index')
     async def async_index(self, docs, *args, **kwargs):
         # Index does not work on a separate thread, this is why we need to call async
-        self.logger.debug(f'Async Index')
         return self.index(docs)
 
     def search(self, docs, parameters, *args, **kwargs):
@@ -41,8 +43,10 @@ class HNSWLibIndexer(TypedExecutor):
             search_field = parameters.pop('search_field')
 
         params = parameters or {}
+        if '__results__' in params:
+            params.pop('__results__')
 
-        ret = self._index.find_batched(docs, search_field=search_field, **params)
+        ret = self._indexer.find_batched(docs, search_field=search_field, **params)
         matched_documents = ret.documents
         matched_scores = ret.scores
         assert len(docs) == len(matched_documents) == len(matched_scores)
@@ -59,19 +63,28 @@ class HNSWLibIndexer(TypedExecutor):
         return self.search(docs, *args, **kwargs)
 
     def _delete(self, docs, *args, **kwargs):
-        del self._index[[doc.id for doc in docs]]
+        del self._indexer[[doc.id for doc in docs]]
         return docs
 
-    @write
-    @requests(on='/delete')
     def delete(self, docs, *args, **kwargs):
         self.logger.debug(f'Delete')
         return self._delete(docs, *args, **kwargs)
 
     @write
-    @requests(on='/update')
+    @requests(on='/delete')
+    async def async_delete(self, docs, *args, **kwargs):
+        return self.delete(docs, *args, **kwargs)
+
     def update(self, docs, *args, **kwargs):
-        return self.index(docs, *args, **kwargs)
+        self.logger.debug(f'Update')
+        self._delete(docs)
+        return self._index(docs, *args, **kwargs)
+
+    @write
+    @requests(on='/update')
+    async def async_update(self, docs, *args, **kwargs):
+        # TODO: Check doc.id is present (so that it updates with shards)
+        return self.update(docs, *args, **kwargs)
 
     def num_docs(self, **kwargs):
         return {'num_docs': self._index.num_docs()}
@@ -82,7 +95,7 @@ class HNSWLibIndexer(TypedExecutor):
 
     def restore(self, snapshot_dir):
         from docarray.index import HnswDocumentIndex
-        self._index = HnswDocumentIndex[self._input_schema](work_dir=snapshot_dir, index_name='index')
+        self._indexer = HnswDocumentIndex[self._input_schema](work_dir=snapshot_dir, index_name='index')
 
     def close(self):
         pass
