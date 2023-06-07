@@ -1,11 +1,51 @@
+from typing import TypeVar, Generic, Type, Optional, TYPE_CHECKING
 from vectordb.utils.unify_input_output import unify_input_output
 from vectordb.utils.pass_parameters import pass_kwargs_as_params
+from vectordb.utils.create_doc_type import create_output_doc_type
 
 
-class Client:
+if TYPE_CHECKING:
+    from docarray import BaseDoc, DocList
 
-    def __init__(self, ctxt_manager):
-        self._client = ctxt_manager.client
+TSchema = TypeVar('TSchema', bound='BaseDoc')
+
+REQUESTS_MAP = {'/index': 'index', '/update': 'update', '/delete': 'delete', '/search': 'search'}
+
+
+class Client(Generic[TSchema]):
+
+    _input_schema: Optional[Type['BaseDoc']] = None
+    _output_schema: Optional[Type['BaseDoc']] = None
+
+    ##################################################
+    # Behind-the-scenes magic                        #
+    # Subclasses should not need to implement these  #
+    ##################################################
+    def __class_getitem__(cls, item: Type[TSchema]):
+        from docarray import BaseDoc
+        if not isinstance(item, type):
+            # do nothing
+            # enables use in static contexts with type vars, e.g. as type annotation
+            return Generic.__class_getitem__.__func__(cls, item)
+        if not issubclass(item, BaseDoc):
+            raise ValueError(
+                f'{cls.__name__}[item] `item` should be a Document not a {item} '
+            )
+
+        out_item = create_output_doc_type(item)
+
+        class ClientTyped(cls):  # type: ignore
+            _input_schema: Type[TSchema] = item
+            _output_schema: Type[TSchema] = out_item
+
+        ClientTyped.__name__ = f'{cls.__name__}[{item.__name__}]'
+        ClientTyped.__qualname__ = f'{cls.__qualname__}[{item.__name__}]'
+
+        return ClientTyped
+
+    def __init__(self, address):
+        from jina import Client as jClient
+        self._client = jClient(host=address)
 
     @unify_input_output
     @pass_kwargs_as_params
@@ -15,8 +55,8 @@ class Client:
     @unify_input_output
     @pass_kwargs_as_params
     def search(self, *args, **kwargs):
-        # potentially unwrap the return
-        return self._client.search(*args, **kwargs)
+        from docarray import DocList
+        return self._client.search(return_type=DocList[self._output_schema], *args, **kwargs)
 
     @unify_input_output
     @pass_kwargs_as_params

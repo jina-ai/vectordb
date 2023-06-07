@@ -4,6 +4,7 @@ from vectordb.db.service import Service
 from vectordb.utils.create_doc_type import create_output_doc_type
 from vectordb.utils.unify_input_output import unify_input_output
 from vectordb.utils.pass_parameters import pass_kwargs_as_params
+from vectordb.utils.sort_matches_by_score import sort_matches_by_scores
 
 if TYPE_CHECKING:
     from jina import Deployment, Flow
@@ -69,12 +70,14 @@ class VectorDB(Generic[TSchema]):
               replicas: Optional[int] = None,
               peer_ports: Optional[Union[Dict[str, List], List]] = None,
               **kwargs):
+        from jina import Deployment, Flow
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
         stateful = replicas is not None and replicas > 1
         executor_cls_name = ''.join(cls._executor_cls.__name__.split('[')[0:2])
         ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
                               {})
+        polling = {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL'}
         if 1 < replicas < 3:
             raise Exception(f'In order for consensus to properly work, at least 3 replicas need to be provided.')
 
@@ -82,7 +85,9 @@ class VectorDB(Generic[TSchema]):
             peer_ports = {}
             if shards is not None:
                 for shard in range(shards):
-                    peer_ports[str(shard)] = [8081 + (shard + 1) * (replica + 1) for replica in range(replicas)]
+                    peer_ports[str(shard)] = []
+                    for replica in range(replicas):
+                        peer_ports[str(shard)].append(8081 + shard * replicas + replica + 1)
             else:
                 peer_ports['0'] = [8081 + (replica + 1) for replica in range(replicas)]
 
@@ -96,7 +101,15 @@ class VectorDB(Generic[TSchema]):
         if 'stateful' in kwargs:
             kwargs.pop('stateful')
 
-        if 'websocket' not in protocol_list and (shards == 1 or 'http' not in protocol_list):
+        use_deployment = True
+
+        if 'websocket' in protocol_list:  # websocket not supported for Deployment
+            use_deployment = False
+
+        if (shards > 1 or stateful) and 'http' in protocol_list:  # http not supported for shards > 1 or stateful
+            use_deployment = False
+
+        if use_deployment:
             ctxt_manager = Deployment(uses=ServedExecutor,
                                       port=port,
                                       protocol=protocol,
@@ -105,6 +118,7 @@ class VectorDB(Generic[TSchema]):
                                       stateful=stateful,
                                       peer_ports=peer_ports,
                                       workspace=workspace,
+                                      polling=polling,
                                       **kwargs)
         else:
             ctxt_manager = Flow(port=port, protocol=protocol, **kwargs).add(uses=ServedExecutor,
@@ -112,9 +126,10 @@ class VectorDB(Generic[TSchema]):
                                                                             replicas=replicas,
                                                                             stateful=stateful,
                                                                             peer_ports=peer_ports,
+                                                                            polling=polling,
                                                                             workspace=workspace)
 
-        return Service(ctxt_manager)
+        return Service(ctxt_manager, address=f'{protocol_list[0]}://0.0.0.0:{port}', schema=cls._input_schema, reverse_order=cls.reverse_score_order)
 
     @pass_kwargs_as_params
     @unify_input_output
@@ -131,6 +146,7 @@ class VectorDB(Generic[TSchema]):
     def delete(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
         return self._executor.delete(docs, parameters)
 
+    @sort_matches_by_scores
     @pass_kwargs_as_params
     @unify_input_output
     def search(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
