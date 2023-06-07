@@ -32,9 +32,9 @@ use and develop vector databases.
    - Exact NN Search: Implements Simple Nearest Neighbour Algorithm.   
    - HNSWLib: Based on [HNSWLib](https://github.com/nmslib/hnswlib)
 
-- Filter capacity: `vectordb` allows you to have filters on top of the ANN search.
+<!--(THIS CAN BE SHOWN WHEN FILTER IS ENABLED)- Filter capacity: `vectordb` allows you to have filters on top of the ANN search. -->
 
-- Customizable: `vectordb` can be easily extended to suit your specific needs or schemas, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).
+<!--(THIS CAN BE SHOWN WHEN FILTER IS ENABLED)- Customizable: `vectordb` can be easily extended to suit your specific needs or schemas, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).-->
 
 ## 🏁 Getting Started
 
@@ -44,55 +44,38 @@ To get started with Vector Database, simply follow these easy steps, in this exa
 
 ```pip install vectordb```
 
-2. Define your Index Document schema or use any of the predefined ones using [DocArray](https://docs.docarray.org/user_guide/representing/first_step/):
+2. Define your Index Document schema using [DocArray](https://docs.docarray.org/user_guide/representing/first_step/):
 
 ```python
 from docarray import BaseDoc
-from docarray.text import TextDoc
+from docarray.typing import NdArray
 
 class MyTextDoc(TextDoc):
-   author: str = ''
+   text: str = ''
+   embedding: NdArray[768]
 ```
 
-3. Use any of the pre-built databases with the document schema as a Python class: 
+Make sure that the schema has a field `schema` as a `tensor` type with shape annotation as in the example.
 
-````{tab} Exact NN search
+3. Use any of the pre-built databases with the document schema (InMemoryExactNNVectorDB or HNSWLibDB): 
+
 ```python
-from vectordb import InMemoryExactNNVectorDB
-db = InMemoryExactNNVectorDB[MyTextDoc](workspace='./hnwslib_path')
+from vectordb import InMemoryExactNNVectorDB, HNSWLibDB
+db = InMemoryExactNNVectorDB[MyTextDoc](workspace='./workspace_path')
 
 db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
 results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128)]), limit=10)
 ```
-````
-````{tab} HNSW
-```python
-from vectordb import HNSWLibDB
-db = HNSWLibDB[MyTextDoc](workspace='./hnwslib_path')
-
-db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
-results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128)]), limit=10)
-```
-````
 
 Each result will contain the matches under the `.matches` attribute as a `DocList[MyTextDoc]`
 
 4. Serve the database as a service with any of these protocols: `gRPC`, `HTTP` and `Webscoket`.
 
-````{tab} Exact NN search
 ```python
 with InMemoryExactNNVectorDB[MyTextDoc].serve(workspace='./hnwslib_path', protocol='grpc', port=12345, replicas=1, shards=1) as service:
    service.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
    service.block()
 ```
-````
-````{tab} HNSW
-```python
-with HNSWLibDB[MyTextDoc].serve(workspace='./hnwslib_path', protocol='grpc', port=12345, replicas=1, shards=1) as service:
-   service.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
-   service.block()
-```
-````
 
 5. Interact with the database through a client in a similar way as previously:
 
@@ -112,6 +95,8 @@ In order to enable your `vectordb` served so that it can be accessed from a Clie
 - protocol: The protocol to be used for serving, it can be `gRPC`, `HTTP`, `websocket` or any combination of them provided as a list. Defaults to `gRPC`
 
 - port: The port where the service will be accessible, it can be a list of one port for each protocol provided. Default to 8081
+
+- workspace: The workspace is the path used by the VectorDB to hold and persist required data. Defaults to '.' (current directory)
 
 
 ### Scalability
@@ -151,8 +136,9 @@ You can then list and delete your deployed DBs with `jc`:
 
 We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
-- More ANN search algorithms: We want to support more ANN search algorithms
-- Filter capacity: We want to support filtering for our offered ANN Search solutionsl
+- Further configuration of ANN algorithms.
+- More ANN search algorithms: We want to support more ANN search algorithms.
+- Filter capacity: We want to support filtering for our offered ANN Search solutions.
 - Customizable: We want to make it easy for users to customize the behavior for their specific needs in an easy way for Python developers.
 
 - Serverless capacity: We're working on adding serverless capacity to `vectordb` in the cloud. We currenly allow to scale between 0 and 1 replica, we aim to offer from 0 to N.
