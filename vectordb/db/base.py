@@ -87,9 +87,9 @@ class VectorDB(Generic[TSchema]):
                 for shard in range(shards):
                     peer_ports[str(shard)] = []
                     for replica in range(replicas):
-                        peer_ports[str(shard)].append(8081 + shard * replicas + replica + 1)
+                        peer_ports[str(shard)].append(port + shard * replicas + replica + 1)
             else:
-                peer_ports['0'] = [8081 + (replica + 1) for replica in range(replicas)]
+                peer_ports['0'] = [port + (replica + 1) for replica in range(replicas)]
 
         if stateful is True:
             if shards is not None:

@@ -1,9 +1,16 @@
 # Vector Database for Python Developers
 `vectordb` is a simple, user-friendly solution for Python developers looking to create their own vector database with CRUD support. Vector databases are a key component of the stack needed to use LLMs as they allow them to have access to context and memory. Many of the solutions out there require developers and users to use complex solutions that are often not needed. With `vectordb`, you can easily create your own vector database solution that can work locally and still be easily deployed and served with scalability features such as sharding and replication. 
 
-`vectordb` allows you to start simple and work locally while allowing when needed to deploy and scale in a seamless manner. With the help of [DocArray](https://github.com/docarray/docarray) and [Jina](https://github.com/jina-ai/jina) `vectordb` allows developers to focus on the algorithmic part and tweak the core of the vector search with Python as they want while keeping it easy to scale and deploy the solution.
+Start with your solution as a local library and seamlessly transition into a served database with all the needed capability. No extra complexity than the needed one.
 
-Stop wondering what exact algorithms do existing solutions apply, how do they apply filtering or how to map your schema to their solutions, with `vectordb` you as a Python developer can easily understand and control what is the vector search algorithm doing, giving you the full control if needed while supporting you for local setting and in more advanced and demanding scenarios in the cloud.
+`vectordb` is based on the local libraries wrapped inside [DocArray](https://github.com/docarray/docarray) and the scalability, reliability and servinc capabilities of [Jina](https://github.com/jina-ai/jina). 
+
+In simple terms, one can think as [DocArray](https://github.com/docarray/docarray) being a the `Lucene` algorithmic logic for Vector Search powering the retrieval capabilities and [Jina](https://github.com/jina-ai/jina), the ElasticSearch making sure that the indexes are served and scaled for the clients, `vectordb` wraps these technologies to give a powerful and easy to use experience to
+use and develop vector databases.
+
+<!--(THIS CAN BE SHOWN WHEN CUSTOMIZATION IS ENABLED) `vectordb` allows you to start simple and work locally while allowing when needed to deploy and scale in a seamless manner. With the help of [DocArray](https://github.com/docarray/docarray) and [Jina](https://github.com/jina-ai/jina) `vectordb` allows developers to focus on the algorithmic part and tweak the core of the vector search with Python as they want while keeping it easy to scale and deploy the solution. -->
+
+<!--(THIS CAN BE SHOWN WHEN CUSTOMIZATION IS ENABLED) Stop wondering what exact algorithms do existing solutions apply, how do they apply filtering or how to map your schema to their solutions, with `vectordb` you as a Python developer can easily understand and control what is the vector search algorithm doing, giving you the full control if needed while supporting you for local setting and in more advanced and demanding scenarios in the cloud. -->  
 
 ## :muscle: Features
 
@@ -49,33 +56,74 @@ class MyTextDoc(TextDoc):
 
 3. Use any of the pre-built databases with the document schema as a Python class: 
 
+````{tab} Exact NN search
 ```python
-from vectordb import HNSWLibDB
-db = HNSWLibDB[MyTextDoc](data_path='./hnwslib_path')
+from vectordb import InMemoryExactNNVectorDB
+db = InMemoryExactNNVectorDB[MyTextDoc](workspace='./hnwslib_path')
 
 db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
-results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
+results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128)]), limit=10)
 ```
+````
+````{tab} HNSW
+```python
+from vectordb import HNSWLibDB
+db = HNSWLibDB[MyTextDoc](workspace='./hnwslib_path')
+
+db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
+results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128)]), limit=10)
+```
+````
 
 Each result will contain the matches under the `.matches` attribute as a `DocList[MyTextDoc]`
 
-4. Serve the database as a service
+4. Serve the database as a service with any of these protocols: `gRPC`, `HTTP` and `Webscoket`.
 
+````{tab} Exact NN search
 ```python
-with HNSWLibDB[MyTextDoc].serve(config={'data_path'= './hnswlib_path'}, port=12345, replicas=1, shards=1) as service:
+with InMemoryExactNNVectorDB[MyTextDoc].serve(workspace='./hnwslib_path', protocol='grpc', port=12345, replicas=1, shards=1) as service:
+   service.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
    service.block()
 ```
+````
+````{tab} HNSW
+```python
+with HNSWLibDB[MyTextDoc].serve(workspace='./hnwslib_path', protocol='grpc', port=12345, replicas=1, shards=1) as service:
+   service.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
+   service.block()
+```
+````
 
 5. Interact with the database through a client in a similar way as previously:
 
 ```python
 from vectordb import Client
 
-c = Client[MyTextDoc](port=12345)
-
-c.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
-results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), parameters={'limit': 10})
+c = Client[MyTextDoc](address='grpc://0.0.0.0:12345')
+results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), limit=10)
 ```
+
+## :rocket: Serve and scale your own Database, add replication and sharding
+
+### Serving:
+
+In order to enable your `vectordb` served so that it can be accessed from a Client, you can give the following parameters:
+
+- protocol: The protocol to be used for serving, it can be `gRPC`, `HTTP`, `websocket` or any combination of them provided as a list. Defaults to `gRPC`
+
+- port: The port where the service will be accessible, it can be a list of one port for each protocol provided. Default to 8081
+
+
+### Scalability
+
+When serving or deploying your Vector Databases you can set 2 scaling parameters and `vectordb`:
+
+- Shards: The number of shards in which the data will be split. This will allow for better latency. `vectordb` will make sure that Documents are indexed in only one of the shards, while search request will be sent to all the shards and `vectordb` will make sure to merge the results from all shards.
+
+- Replicas: The number of replicas of the same DB that must exist. The given replication factor will be shared by all the `shards`. `vectordb` uses [RAFT](https://raft.github.io/) algorithm to ensure that the index is in sync between all the replicas of each shard. With this, `vectordb` increases the availability of the service and allows for better search throughput as multiple replicas can respond in parallel to more search requests while allowing CRUD operations. 
+
+** When deployed to JCloud, the number of replicas will be set to 1. We are working to enable replication in the cloud
+
 
 ## :cloud: Deploy it to the cloud
 
@@ -99,28 +147,15 @@ You can then list and delete your deployed DBs with `jc`:
 ```jc delete <>```
 
 
-## :rocket: Scale your own Database, add replication and sharding
-
-When serving or deploying your Vector Databases you can set 2 scaling parameters and `vectordb`:
-
-- Shards: The number of shards in which the data will be split. This will allow for better latency. `vectordb` will make sure that Documents are indexed in only one of the shards, while search request will be sent to all the shards and `vectordb` will make sure to merge the results from all shards.
-
-- Replicas: The number of replicas of the same DB that must exist. The given replication factor will be shared by all the `shards`. `vectordb` uses RAFT algorithm to ensure that the index is in sync between all the replicas of each shard. With this, `vectordb` increases the availability of the service and allows for better search throughput as multiple replicas can respond in parallel to more search requests while allowing CRUD operations. 
-
-** When deployed, the number of replicas will be set to 1. We are working to enable replication in the cloud
-
-## 🛠️ (Optional) Customize your Database
-
-TODO: Explain how to write your own implementation
-
-
 ## 🛣️ Roadmap
 
 We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
-- Serverless capacity: We're working on adding serverless capacity to `vectordb` in the cloud. We currenly allow to scale between 0 and 1 replica, we aim to offer from 0 to N.
 - More ANN search algorithms: We want to support more ANN search algorithms
+- Filter capacity: We want to support filtering for our offered ANN Search solutionsl
+- Customizable: We want to make it easy for users to customize the behavior for their specific needs in an easy way for Python developers.
 
+- Serverless capacity: We're working on adding serverless capacity to `vectordb` in the cloud. We currenly allow to scale between 0 and 1 replica, we aim to offer from 0 to N.
 - More deploying options: We want to enable deploying `vectordb` on different clouds with more options
 
 If you need any help with `vectordb`, or you are interested on using it and have some requests to make it fit your own need. don't hesitate to reach out to us. You can join our [Slack community](https://jina.ai/slack) and chat with us and other community members.
