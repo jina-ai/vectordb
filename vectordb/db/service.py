@@ -1,7 +1,6 @@
 from vectordb.client.client import Client
 from vectordb.utils.unify_input_output import unify_input_output
 from vectordb.utils.pass_parameters import pass_kwargs_as_params
-from vectordb.utils.sort_matches_by_score import sort_matches_by_scores
 
 
 class Service:
@@ -9,7 +8,7 @@ class Service:
     def __init__(self, ctxt_manager, schema, address, reverse_order=False):
         self.ctxt_manager = ctxt_manager
         self._reverse_order = reverse_order
-        self._client = Client[schema](address)
+        self._client = Client[schema](address, reverse_order=reverse_order)
 
     def __enter__(self):
         self.ctxt_manager.__enter__()
@@ -33,7 +32,6 @@ class Service:
     def index(self, *args, **kwargs):
         return self._client.index(*args, **kwargs)
 
-    @sort_matches_by_scores
     @pass_kwargs_as_params
     @unify_input_output
     def search(self, *args, **kwargs):

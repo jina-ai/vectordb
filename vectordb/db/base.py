@@ -1,7 +1,6 @@
 from typing import TypeVar, Generic, Type, Optional, Union, List, Dict, TYPE_CHECKING
 from vectordb.db.executors.typed_executor import TypedExecutor
 from vectordb.db.service import Service
-from vectordb.utils.create_doc_type import create_output_doc_type
 from vectordb.utils.unify_input_output import unify_input_output
 from vectordb.utils.pass_parameters import pass_kwargs_as_params
 from vectordb.utils.sort_matches_by_score import sort_matches_by_scores
@@ -19,7 +18,6 @@ class VectorDB(Generic[TSchema]):
     # the BaseDoc that defines the schema of the store
     # for subclasses this is filled automatically
     _input_schema: Optional[Type['BaseDoc']] = None
-    _output_schema: Optional[Type['BaseDoc']] = None
     _executor_type: Optional[Type[TypedExecutor]] = None
     _executor_cls: Type[TypedExecutor]
 
@@ -38,38 +36,26 @@ class VectorDB(Generic[TSchema]):
                 f'{cls.__name__}[item] `item` should be a Document not a {item} '
             )
 
-        out_item = create_output_doc_type(item)
-
         class VectorDBTyped(cls):  # type: ignore
             _input_schema: Type[TSchema] = item
-            _output_schema: Type[TSchema] = out_item
-            _executor_cls: Type[TypedExecutor] = cls._executor_type[item, out_item]
+            _executor_cls: Type[TypedExecutor] = cls._executor_type[item]
 
         VectorDBTyped.__name__ = f'{cls.__name__}[{item.__name__}]'
         VectorDBTyped.__qualname__ = f'{cls.__qualname__}[{item.__name__}]'
 
         return VectorDBTyped
 
-    def __init__(self, *args, **kwargs):
-        if 'work_dir' in kwargs:
-            self._workspace = kwargs['work_dir']
-        if 'workspace' in kwargs:
-            self._workspace = kwargs['workspace']
-        self._uses_with = kwargs
-        kwargs['requests'] = REQUESTS_MAP
-        kwargs['runtime_args'] = {'workspace': self._workspace}
-        self._executor = self._executor_cls(*args, **kwargs)
-
     @classmethod
-    def serve(cls,
-              *,
-              port: Optional[Union[str, List[str]]] = 8081,
-              workspace: Optional[str] = None,
-              protocol: Optional[Union[str, List[str]]] = None,
-              shards: Optional[int] = None,
-              replicas: Optional[int] = None,
-              peer_ports: Optional[Union[Dict[str, List], List]] = None,
-              **kwargs):
+    def _get_jina_object(cls,
+                         *,
+                         to_deploy: bool = False,
+                         port: Optional[Union[str, List[str]]] = 8081,
+                         protocol: Optional[Union[str, List[str]]] = None,
+                         workspace: Optional[str] = None,
+                         shards: Optional[int] = None,
+                         replicas: Optional[int] = None,
+                         peer_ports: Optional[Union[Dict[str, List], List]] = None,
+                         **kwargs):
         from jina import Deployment, Flow
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
@@ -77,7 +63,15 @@ class VectorDB(Generic[TSchema]):
         executor_cls_name = ''.join(cls._executor_cls.__name__.split('[')[0:2])
         ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
                               {})
+        uses = ServedExecutor
         polling = {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL'}
+        if to_deploy and replicas > 1:
+            import warnings
+            warnings.warn(
+                'Deployment with replicas > 1 is not currently available. The deployment will have 1 replica per each '
+                'shard')
+            replicas = 1
+
         if 1 < replicas < 3:
             raise Exception(f'In order for consensus to properly work, at least 3 replicas need to be provided.')
 
@@ -103,6 +97,10 @@ class VectorDB(Generic[TSchema]):
 
         use_deployment = True
 
+        if to_deploy:
+            # here we would need to push the EXECUTOR TO HUBBLE AND CHANGE THE USES
+            use_deployment = False
+
         if 'websocket' in protocol_list:  # websocket not supported for Deployment
             use_deployment = False
 
@@ -110,26 +108,54 @@ class VectorDB(Generic[TSchema]):
             use_deployment = False
 
         if use_deployment:
-            ctxt_manager = Deployment(uses=ServedExecutor,
-                                      port=port,
-                                      protocol=protocol,
-                                      shards=shards,
-                                      replicas=replicas,
-                                      stateful=stateful,
-                                      peer_ports=peer_ports,
-                                      workspace=workspace,
-                                      polling=polling,
-                                      **kwargs)
+            jina_object = Deployment(uses=uses,
+                                     port=port,
+                                     protocol=protocol,
+                                     shards=shards,
+                                     replicas=replicas,
+                                     stateful=stateful,
+                                     peer_ports=peer_ports,
+                                     workspace=workspace,
+                                     polling=polling,
+                                     **kwargs)
         else:
-            ctxt_manager = Flow(port=port, protocol=protocol, **kwargs).add(uses=ServedExecutor,
-                                                                            shards=shards,
-                                                                            replicas=replicas,
-                                                                            stateful=stateful,
-                                                                            peer_ports=peer_ports,
-                                                                            polling=polling,
-                                                                            workspace=workspace)
+            jina_object = Flow(port=port, protocol=protocol, **kwargs).add(uses=uses,
+                                                                           shards=shards,
+                                                                           replicas=replicas,
+                                                                           stateful=stateful,
+                                                                           peer_ports=peer_ports,
+                                                                           polling=polling,
+                                                                           workspace=workspace)
 
-        return Service(ctxt_manager, address=f'{protocol_list[0]}://0.0.0.0:{port}', schema=cls._input_schema, reverse_order=cls.reverse_score_order)
+        return jina_object
+
+    def __init__(self, *args, **kwargs):
+        if 'work_dir' in kwargs:
+            self._workspace = kwargs['work_dir']
+        if 'workspace' in kwargs:
+            self._workspace = kwargs['workspace']
+        self._uses_with = kwargs
+        kwargs['requests'] = REQUESTS_MAP
+        kwargs['runtime_args'] = {'workspace': self._workspace}
+        self._executor = self._executor_cls(*args, **kwargs)
+
+    @classmethod
+    def serve(cls,
+              *,
+              port: Optional[Union[str, List[str]]] = 8081,
+              protocol: Optional[Union[str, List[str]]] = None,
+              **kwargs):
+        protocol = protocol or 'grpc'
+        protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
+        ctxt_manager = cls._get_jina_object(to_deploy=False, port=port, protocol=protocol, **kwargs)
+        return Service(ctxt_manager, address=f'{protocol_list[0]}://0.0.0.0:{port}', schema=cls._input_schema,
+                       reverse_order=cls.reverse_score_order)
+
+    @classmethod
+    def deploy(cls,
+               **kwargs):
+        jina_obj = cls._get_jina_object(to_deploy=True, **kwargs)
+        # here we will need to transform to YAML, change `jcloud` options and deploy
 
     @pass_kwargs_as_params
     @unify_input_output

@@ -2,6 +2,7 @@ from typing import TypeVar, Generic, Type, Optional, TYPE_CHECKING
 from vectordb.utils.unify_input_output import unify_input_output
 from vectordb.utils.pass_parameters import pass_kwargs_as_params
 from vectordb.utils.create_doc_type import create_output_doc_type
+from vectordb.utils.sort_matches_by_score import sort_matches_by_scores
 
 
 if TYPE_CHECKING:
@@ -43,8 +44,9 @@ class Client(Generic[TSchema]):
 
         return ClientTyped
 
-    def __init__(self, address):
+    def __init__(self, address, reverse_order=False):
         from jina import Client as jClient
+        self.reverse_score_order = reverse_order
         self._client = jClient(host=address)
 
     @unify_input_output
@@ -52,6 +54,7 @@ class Client(Generic[TSchema]):
     def index(self, *args, **kwargs):
         return self._client.index(*args, **kwargs)
 
+    @sort_matches_by_scores
     @unify_input_output
     @pass_kwargs_as_params
     def search(self, *args, **kwargs):

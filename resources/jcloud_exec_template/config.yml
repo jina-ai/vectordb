@@ -1,0 +1,4 @@
+jtype: VectorDBExecutor
+py_modules:
+  - app.py
+  - executor.py
