@@ -1,5 +1,16 @@
 from setuptools import setup, find_packages
-from vectordb import __version__
+from os import path
+
+try:
+    pkg_name = 'vectordb'
+    libinfo_py = path.join(pkg_name, '__init__.py')
+    libinfo_content = open(libinfo_py, 'r', encoding='utf-8').readlines()
+    version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][
+        0
+    ]
+    exec(version_line)  # gives __version__
+except FileNotFoundError:
+    __version__ = '0.0.0'
 
 # Read the contents of requirements.txt
 with open('requirements.txt', 'r') as f:
@@ -32,11 +43,10 @@ setup(
         'test': [
             'pytest',
             'pytest-asyncio',
-            'monkeypatch'
         ],
     },
     install_requires=requirements,
 )
 
 import subprocess
-subprocess.run(['pip', 'install', 'docarray[hnswlib]>=0.32.0'])
+subprocess.run(['pip', 'install', 'docarray[hnswlib]>=0.33.0'])
