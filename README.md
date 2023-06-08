@@ -86,6 +86,19 @@ c = Client[MyTextDoc](address='grpc://0.0.0.0:12345')
 results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), limit=10)
 ```
 
+## CRUD API:
+
+When using `vectordb` as a library or accesing it from a client to a served instance, the Python objects share the exact same API
+to provide `index`, `search`, `update` and `delete` capability:
+
+- `index`: Index gets as input the `DocList` to index.
+
+- `search`: Search gets as input the `DocList` of batched queries or a single `BaseDoc` as single query. It returns a single or multiple results where each query has `matches` and `scores` attributes sorted by `relevance`.
+
+- `delete`: Delete gets as input the `DocList` of documents to delete from the index. The `delete` operation will only care for the `id` attribute, so you need to keep track of the `indexed` `IDs` if you want to delete documents.
+
+- `update`: Delete gets as input the `DocList` of documents to update in the index. The `update` operation will update the `indexed` document with the same Index with the attributes and payload from the input documents.
+
 ## :rocket: Serve and scale your own Database, add replication and sharding
 
 ### Serving:

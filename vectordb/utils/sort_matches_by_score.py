@@ -5,9 +5,9 @@ RETURN_TYPE = 'return_type'
 
 def sort_matches_by_scores(func):
     """Method to ensure that return docs have matches sorted by score"""
-    from docarray import DocList
 
     def wrapper(*args, **kwargs):
+        from docarray import DocList
         res = func(*args, **kwargs)
         obj = args[0]
         if isinstance(res, DocList):
