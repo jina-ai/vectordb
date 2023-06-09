@@ -4,6 +4,7 @@ from vectordb.db.service import Service
 from vectordb.utils.unify_input_output import unify_input_output
 from vectordb.utils.pass_parameters import pass_kwargs_as_params
 from vectordb.utils.sort_matches_by_score import sort_matches_by_scores
+from vectordb.utils.push_to_hubble import push_vectordb_to_hubble
 
 if TYPE_CHECKING:
     from jina import Deployment, Flow
@@ -55,8 +56,12 @@ class VectorDB(Generic[TSchema]):
                          shards: Optional[int] = None,
                          replicas: Optional[int] = None,
                          peer_ports: Optional[Union[Dict[str, List], List]] = None,
+                         definition_file: Optional[str] = None,
+                         obj_name: Optional[str] = None,
                          **kwargs):
         from jina import Deployment, Flow
+        replicas = replicas or 1
+        shards = shards or 1
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
         stateful = replicas is not None and replicas > 1
@@ -96,9 +101,12 @@ class VectorDB(Generic[TSchema]):
             kwargs.pop('stateful')
 
         use_deployment = True
-
+        print(f' hey JOAN HERE {to_deploy}')
         if to_deploy:
             # here we would need to push the EXECUTOR TO HUBBLE AND CHANGE THE USES
+            assert definition_file is not None, 'Trying to create a Jina Object for Deployment without the file where the vectordb object/class is defined'
+            assert obj_name is not None, 'Trying to create a Jina Object for Deployment without the name of the vectordb object/class to deploy'
+            push_vectordb_to_hubble(vectordb_name=obj_name, definition_file_path=definition_file)
             use_deployment = False
 
         if 'websocket' in protocol_list:  # websocket not supported for Deployment
