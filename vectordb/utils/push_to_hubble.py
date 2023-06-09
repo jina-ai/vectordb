@@ -75,6 +75,8 @@ def _push_to_hubble(
     push_envs = (
         {'JINA_HUBBLE_HIDE_EXECUTOR_PUSH_SUCCESS_MSG': 'true'} if not verbose else {}
     )
+    # return 'a' + ':' + tag
+
     with EnvironmentVarCtxtManager(push_envs):
         executor_id = HubIO(args).push().get('id')
         return executor_id + ':' + tag
