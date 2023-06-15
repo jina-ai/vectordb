@@ -81,10 +81,11 @@ class VectorDB(Generic[TSchema]):
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
         stateful = replicas is not None and replicas > 1
-        executor_cls_name = ''.join(cls._executor_cls.__name__.split('[')[0:2])
-        ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
-                              {})
-        uses = ServedExecutor
+        if not to_deploy:
+            executor_cls_name = ''.join(cls._executor_cls.__name__.split('[')[0:2])
+            ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
+                                  {})
+            uses = ServedExecutor
         polling = {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL'}
         if to_deploy and replicas > 1:
             import warnings
@@ -140,8 +141,7 @@ class VectorDB(Generic[TSchema]):
                                      stateful=stateful,
                                      peer_ports=peer_ports,
                                      workspace=workspace,
-                                     polling=polling,
-                                     **kwargs)
+                                     polling=polling, **kwargs)
         else:
             jina_object = Flow(port=port, protocol=protocol, **kwargs).add(name='indexer',
                                                                            uses=uses,
@@ -163,6 +163,7 @@ class VectorDB(Generic[TSchema]):
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
         ctxt_manager = cls._get_jina_object(to_deploy=False, port=port, protocol=protocol, **kwargs)
+        port = port[0] if isinstance(port, list) else port
         return Service(ctxt_manager, address=f'{protocol_list[0]}://0.0.0.0:{port}', schema=cls._input_schema,
                        reverse_order=cls.reverse_score_order)
 
