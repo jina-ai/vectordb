@@ -1,0 +1,6 @@
+jtype: VectorDBExecutor
+metas:
+  name: vectordb_executor
+py_modules:
+  - vectordb_app.py
+  - executor.py

@@ -1,2 +1,3 @@
 jina>=3.17.0
+click
 #docarray[hnswlib]>=0.33.0
