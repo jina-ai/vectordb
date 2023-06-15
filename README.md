@@ -1,4 +1,9 @@
 # Vector Database for Python Developers
+
+Vector Databases are databases that store embeddings representing data to provide semantic similarity between objects. Vector databases
+are used to perform similarity search between multimodal data, such as text, image, audio or videos and also are powering LLM applications
+to provide context for LLMs to improve the results of the generation and prevent evaluations. 
+
 `vectordb` is a simple, user-friendly solution for Python developers looking to create their own vector database with CRUD support. Vector databases are a key component of the stack needed to use LLMs as they allow them to have access to context and memory. Many of the solutions out there require developers and users to use complex solutions that are often not needed. With `vectordb`, you can easily create your own vector database solution that can work locally and still be easily deployed and served with scalability features such as sharding and replication. 
 
 Start with your solution as a local library and seamlessly transition into a served database with all the needed capability. No extra complexity than the needed one.
@@ -122,6 +127,38 @@ When serving or deploying your Vector Databases you can set 2 scaling parameters
 
 ** When deployed to JCloud, the number of replicas will be set to 1. We are working to enable replication in the cloud
 
+## 💻 `vectordb` CLI
+
+`vectordb` is a simple CLI that helps you to serve and deploy your `vectordb` db.
+
+First, you need to embed your database instance or class in a python file.
+
+```python
+# example.py
+from docarray import DocList, BaseDoc
+from docarray.typing import NdArray
+from vectordb import InMemoryExactNNVectorDB
+
+
+class MyDoc(BaseDoc):
+    text: str
+    embedding: NdArray[128]
+
+
+db = InMemoryExactNNVectorDB[MyDoc](workspace='./vectordb') # notice how `db` is the instance that we want to serve
+
+if __name__ == '__main__':
+    # make sure to protect this part of the code
+    with app.serve() as service:
+        service.block()
+```
+
+
+| Description | Command | 
+| --- | ---: |
+| Serve your app locally | `vectordb serve --db example:db` |
+| Deploy your app on JCloud |`vectordb deploy --db example:db` |
+
 
 ## :cloud: Deploy it to the cloud
 
@@ -134,16 +171,42 @@ When serving or deploying your Vector Databases you can set 2 scaling parameters
 ```jc login```
 
 3. Deploy:
+  ```bash
+  vectordb deploy --db example:db
+  ```
+
+  <details>
+  <summary>Show command output</summary>
+
+  ```text
+  ╭──────────────┬────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+  │ App ID       │                                           <id>                                                         │
+  ├──────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ Phase        │                                       Serving                                                       │
+  ├──────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ Endpoint     │                                 grpc://<id>.wolf.jina.ai                                               │
+  ├──────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ App logs     │                                   dashboards.wolf.jina.ai                                         │
+  ╰──────────────┴────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+  ```
+
+  </details>
+  
+4. Connect from Client
+
+Once deployed, you can use `vectordb` Client to access the given endpoint.
 ```python
-HNSWLibDB[MyTextDoc].deploy(config={'data_path'= './hnswlib_path'}, replicas=1, shards=1)
+from vectordb import Client
+
+c = Client(address=' grpc://<id>.wolf.jina.ai')
 ```
 
-You can then list and delete your deployed DBs with `jc`:
+5. Manage your deployed instances using [jcloud](https://github.com/jina-ai/jcloud):
+You can then list and delete your deployed DBs with `jc` command:
 
 ```jc list <>```
 
 ```jc delete <>```
-
 
 ## 🛣️ Roadmap
 
