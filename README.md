@@ -207,6 +207,8 @@ You can then list and delete your deployed DBs with `jc` command:
 ```jc list <>```
 
 ```jc delete <>```
+   
+## ⚙️ Configure
 
 ## 🛣️ Roadmap
 
