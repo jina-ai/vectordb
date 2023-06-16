@@ -7,6 +7,7 @@ import numpy as np
 from docarray import DocList, BaseDoc
 from docarray.typing import NdArray
 from vectordb import HNSWVectorDB
+from jina.helper import random_port
 
 
 class MyDoc(BaseDoc):
@@ -26,7 +27,8 @@ def docs_to_index():
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_hnswlib_vectordb_batch(docs_to_index, replicas, shards, protocol, tmpdir):
     query = docs_to_index[:10]
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol,
+    port = random_port()
+    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol, port=port,
                                    uses_with={'ef': 5000}) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
@@ -46,7 +48,8 @@ def test_hnswlib_vectordb_batch(docs_to_index, replicas, shards, protocol, tmpdi
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_hnswlib_vectordb_single_query(docs_to_index, limit, replicas, shards, protocol, tmpdir):
     query = docs_to_index[100]
-    with HNSWVectorDB[MyDoc](ef=5000).serve(workspace=str(tmpdir), replicas=replicas, shards=shards,
+    port = random_port()
+    with HNSWVectorDB[MyDoc](ef=5000).serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
                                             protocol=protocol) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
@@ -63,8 +66,9 @@ def test_hnswlib_vectordb_single_query(docs_to_index, limit, replicas, shards, p
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_hnswlib_vectordb_delete(docs_to_index, replicas, shards, protocol, tmpdir):
     query = docs_to_index[0]
+    port = random_port()
     delete = MyDoc(id=query.id, text='', embedding=np.random.rand(128))
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol,
+    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol, port=port,
                                    uses_with={'ef': 5000}) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
@@ -91,8 +95,9 @@ def test_hnswlib_vectordb_delete(docs_to_index, replicas, shards, protocol, tmpd
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_hnswlib_vectordb_udpate_text(docs_to_index, replicas, shards, protocol, tmpdir):
     query = docs_to_index[0]
+    port = random_port()
     update = MyDoc(id=query.id, text=query.text + '_changed', embedding=query.embedding)
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol,
+    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol, port=port,
                                    uses_with={'ef': 5000}) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
@@ -118,8 +123,9 @@ def test_hnswlib_vectordb_udpate_text(docs_to_index, replicas, shards, protocol,
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_hnswlib_vectordb_restore(docs_to_index, replicas, shards, protocol, tmpdir):
     query = docs_to_index[:100]
+    port = random_port()
 
-    with HNSWVectorDB[MyDoc](ef=5000).serve(workspace=str(tmpdir), replicas=replicas, shards=shards,
+    with HNSWVectorDB[MyDoc](ef=5000).serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
                                             protocol=protocol) as db:
         db.index(docs=docs_to_index)
         if replicas > 1:
@@ -132,7 +138,7 @@ def test_hnswlib_vectordb_restore(docs_to_index, replicas, shards, protocol, tmp
             assert res.text == res.matches[0].text
             assert res.scores[0] < 0.001  # some precision issues, should be 0.0
 
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards,
+    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
                                    protocol=protocol, uses_with={'ef': 5000}) as new_db:
         time.sleep(2)
         resp = new_db.search(docs=query)
