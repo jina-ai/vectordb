@@ -1,17 +1,13 @@
 # Vector Database for Python Developers
 
-Vector Databases are databases that store embeddings representing data to provide semantic similarity between objects. Vector databases
-are used to perform similarity search between multimodal data, such as text, image, audio or videos and also are powering LLM applications
-to provide context for LLMs to improve the results of the generation and prevent evaluations. 
+Vector databases store embeddings for semantic similarity between objects, enabling similarity searches across multimodal data types. They enhance LLM applications by providing context and improving generation results.
 
-`vectordb` is a simple, user-friendly solution for Python developers looking to create their own vector database with CRUD support. Vector databases are a key component of the stack needed to use LLMs as they allow them to have access to context and memory. Many of the solutions out there require developers and users to use complex solutions that are often not needed. With `vectordb`, you can easily create your own vector database solution that can work locally and still be easily deployed and served with scalability features such as sharding and replication. 
+Meet vectordb: a user-friendly Python solution for creating vector databases with CRUD support. Unlike complex alternatives, vectordb allows easy local deployment while offering scalability features like sharding and replication. Seamlessly transition from a local library to a served database without unnecessary complexity.
 
-Start with your solution as a local library and seamlessly transition into a served database with all the needed capability. No extra complexity than the needed one.
+vectordb leverages [DocArray](https://github.com/docarray/docarray) retrieval capabilities and [Jina](https://github.com/jina-ai/jina) scalability, reliability, and serving capabilities. In essence, DocArray powers the Vector Search logic while Jina ensures scalable index serving, creating a powerful and user-friendly vector database experience.
 
-`vectordb` is based on the local libraries wrapped inside [DocArray](https://github.com/docarray/docarray) and the scalability, reliability and servinc capabilities of [Jina](https://github.com/jina-ai/jina). 
-
-In simple terms, one can think as [DocArray](https://github.com/docarray/docarray) being a the `Lucene` algorithmic logic for Vector Search powering the retrieval capabilities and [Jina](https://github.com/jina-ai/jina), the ElasticSearch making sure that the indexes are served and scaled for the clients, `vectordb` wraps these technologies to give a powerful and easy to use experience to
-use and develop vector databases.
+<!--In simple terms, one can think as [DocArray](https://github.com/docarray/docarray) being a the `Lucene` algorithmic logic for Vector Search powering the retrieval capabilities and [Jina](https://github.com/jina-ai/jina), the ElasticSearch making sure that the indexes are served and scaled for the clients, `vectordb` wraps these technologies to give a powerful and easy to use experience to
+use and develop vector databases.-->
 
 <!--(THIS CAN BE SHOWN WHEN CUSTOMIZATION IS ENABLED) `vectordb` allows you to start simple and work locally while allowing when needed to deploy and scale in a seamless manner. With the help of [DocArray](https://github.com/docarray/docarray) and [Jina](https://github.com/jina-ai/jina) `vectordb` allows developers to focus on the algorithmic part and tweak the core of the vector search with Python as they want while keeping it easy to scale and deploy the solution. -->
 
@@ -19,17 +15,17 @@ use and develop vector databases.
 
 ## :muscle: Features
 
-- User-friendly interface: `vectordb` is designed with simplicity and ease of use in mind, making it accessible even for beginners.
+- User-friendly interface: `vectordb` offers a simple and intuitive interface, catering to users of all levels of expertise.
 
-- Adapts to your needs: `vectordb` is designed to offer what you need without extra complexity, supporting the features needed at every step. From local, to serve, to the cloud in a seamless way.
+- Tailored to your needs: `vectordb` provides the necessary features without unnecessary complexity, ensuring a smooth transition from local to server and cloud deployment.
 
-- CRUD support: `vectordb` support CRUD operations, index, search, update and delete.
+- CRUD support: `vectordb` supports essential CRUD operations, including indexing, searching, updating, and deleting.
 
-- Serve: Serve the databases to insert or search as a service with `gRPC` or `HTTP` protocol.
+- Serve as a service: `vectordb` allows you to serve your databases and perform insertion or searching operations through gRPC, HTTP or Websocket protocols.
 
-- Scalable: With `vectordb`, you can deploy your database in the cloud and take advantage of powerful scalability features like sharding and replication. With this, you can easily improve the latency of your service by sharding your data, or improve the availability and throughput by allowing `vectordb` to offer replication.
+- Scalability: Take advantage of `vectordb's` deployment capabilities to benefit from powerful scalability features such as sharding and replication. Sharding improves service latency, while replication enhances availability and throughput.
 
-- Deploy to the cloud: If you need to deploy your service in the cloud, you can easily deploy in [Jina AI Cloud](). More deployment options will soon come. 
+- DCloud deployment: Easily deploy your service in the cloud using [Jina AI Cloud](https://cloud.jina.ai/). Stay tuned for upcoming deployment options.
 
 - Serverless capacity: `vectordb` can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed.
 
@@ -245,11 +241,9 @@ Then a set of configurations that tweak the performance and accuracy of the NN s
 
 We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
-- Further configuration of ANN algorithms.
 - More ANN search algorithms: We want to support more ANN search algorithms.
 - Filter capacity: We want to support filtering for our offered ANN Search solutions.
 - Customizable: We want to make it easy for users to customize the behavior for their specific needs in an easy way for Python developers.
-
 - Serverless capacity: We're working on adding serverless capacity to `vectordb` in the cloud. We currenly allow to scale between 0 and 1 replica, we aim to offer from 0 to N.
 - More deploying options: We want to enable deploying `vectordb` on different clouds with more options
 
