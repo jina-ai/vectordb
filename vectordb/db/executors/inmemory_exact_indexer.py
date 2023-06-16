@@ -84,7 +84,7 @@ class InMemoryExactNNIndexer(TypedExecutor):
 
     def close(self):
         if self._index_file_path is not None:
-            self._indexer.persist(self._index_file_path)
+            self._indexer.persist()
 
 
 
