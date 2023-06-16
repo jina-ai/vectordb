@@ -34,8 +34,8 @@ use and develop vector databases.
 - Serverless capacity: `vectordb` can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed.
 
 - Multiple ANN algorithms: `vectordb` contains different implementations of ANN algorithms. These are the ones offered so far, we plan to integrate more:
-   - Exact NN Search: Implements Simple Nearest Neighbour Algorithm.   
-   - HNSWLib: Based on [HNSWLib](https://github.com/nmslib/hnswlib)
+   - InMemoryExactNNVectorDB (Exact NN Search): Implements Simple Nearest Neighbour Algorithm.   
+   - HNSWVectorDB (based on HNSW): Based on [HNSWLib](https://github.com/nmslib/hnswlib)
 
 <!--(THIS CAN BE SHOWN WHEN FILTER IS ENABLED)- Filter capacity: `vectordb` allows you to have filters on top of the ANN search. -->
 
@@ -43,7 +43,7 @@ use and develop vector databases.
 
 ## 🏁 Getting Started
 
-To get started with Vector Database, simply follow these easy steps, in this example we are going to use `HNSWVecDB` as example:
+To get started with Vector Database, simply follow these easy steps, in this example we are going to use `InMemoryExactNNVectorDB` as example:
 
 1. Install `vectordb`: 
 
@@ -62,10 +62,10 @@ class MyTextDoc(TextDoc):
 
 Make sure that the schema has a field `schema` as a `tensor` type with shape annotation as in the example.
 
-3. Use any of the pre-built databases with the document schema (InMemoryExactNNVectorDB or HNSWLibDB): 
+3. Use any of the pre-built databases with the document schema (InMemoryExactNNVectorDB or HNSWVectorDB): 
 
 ```python
-from vectordb import InMemoryExactNNVectorDB, HNSWLibDB
+from vectordb import InMemoryExactNNVectorDB, HNSWVectorDB
 db = InMemoryExactNNVectorDB[MyTextDoc](workspace='./workspace_path')
 
 db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
@@ -209,6 +209,37 @@ You can then list and delete your deployed DBs with `jc` command:
 ```jc delete <>```
    
 ## ⚙️ Configure
+
+Here you can find the list of parameters you can use to configure the behavior for each of the `VectorDB` types.
+
+### InMemoryExactNNVectorDB
+
+This database type does an exhaustive search on the embeddings and therefore has a very limited configuration setting:
+
+- workspace: The folder where the required data will be persisted.
+
+```python
+InMemoryExactNNVectorDB[MyDoc](workspace='./vectordb')
+InMemoryExactNNVectorDB[MyDoc].serve(workspace='./vectordb')
+```
+
+### HNSWVectorDB
+
+This database implements Approximate Nearest Neighbour based on HNSW algorithm using [HNSWLib](https://github.com/nmslib/hnswlib).
+
+It containes more configuration options:
+
+ - workspace: The folder where the required data will be persisted.
+ 
+Then a set of configurations that tweak the performance and accuracy of the NN search algorithm. You can find more details in [HNSWLib README](https://github.com/nmslib/hnswlib)
+
+- space: name of the space, related to the similarity metric used (can be one of "l2", "ip", or "cosine"), default: "l2"
+- max_elements: Initial capacity of the index, which is increased dynamically, default: 1024,
+- ef_construction: parameter that controls speed/accuracy trade-off during the index construction, default: 200,
+- ef: parameter controlling query time/accuracy trade-off, default: 10,
+- M: parameter that defines the maximum number of outgoing connections in the graph, default: 16.
+- allow_replace_deleted: enables replacing of deleted elements with new added ones, default: False
+- num_threads: default number of threads to use while `index` and `search` are used, default: 1
 
 ## 🛣️ Roadmap
 
