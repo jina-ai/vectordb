@@ -26,7 +26,8 @@ def docs_to_index():
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_hnswlib_vectordb_batch(docs_to_index, replicas, shards, protocol, tmpdir):
     query = docs_to_index[:10]
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol) as db:
+    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol,
+                                   uses_with={'ef': 5000}) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -45,11 +46,12 @@ def test_hnswlib_vectordb_batch(docs_to_index, replicas, shards, protocol, tmpdi
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
 def test_hnswlib_vectordb_single_query(docs_to_index, limit, replicas, shards, protocol, tmpdir):
     query = docs_to_index[100]
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol) as db:
+    with HNSWVectorDB[MyDoc](ef=5000).serve(workspace=str(tmpdir), replicas=replicas, shards=shards,
+                                            protocol=protocol) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
-        resp = db.search(inputs=query)
+        resp = db.search(inputs=query, limit=limit)
         assert len(resp.matches) == min(limit * shards, len(docs_to_index))
         assert resp.id == resp.matches[0].id
         assert resp.text == resp.matches[0].text
@@ -62,7 +64,8 @@ def test_hnswlib_vectordb_single_query(docs_to_index, limit, replicas, shards, p
 def test_hnswlib_vectordb_delete(docs_to_index, replicas, shards, protocol, tmpdir):
     query = docs_to_index[0]
     delete = MyDoc(id=query.id, text='', embedding=np.random.rand(128))
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol) as db:
+    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol,
+                                   uses_with={'ef': 5000}) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -89,7 +92,8 @@ def test_hnswlib_vectordb_delete(docs_to_index, replicas, shards, protocol, tmpd
 def test_hnswlib_vectordb_udpate_text(docs_to_index, replicas, shards, protocol, tmpdir):
     query = docs_to_index[0]
     update = MyDoc(id=query.id, text=query.text + '_changed', embedding=query.embedding)
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol) as db:
+    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol,
+                                   uses_with={'ef': 5000}) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -115,8 +119,8 @@ def test_hnswlib_vectordb_udpate_text(docs_to_index, replicas, shards, protocol,
 def test_hnswlib_vectordb_restore(docs_to_index, replicas, shards, protocol, tmpdir):
     query = docs_to_index[:100]
 
-    with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards,
-                                   protocol=protocol) as db:
+    with HNSWVectorDB[MyDoc](ef=5000).serve(workspace=str(tmpdir), replicas=replicas, shards=shards,
+                                            protocol=protocol) as db:
         db.index(docs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -129,7 +133,7 @@ def test_hnswlib_vectordb_restore(docs_to_index, replicas, shards, protocol, tmp
             assert res.scores[0] < 0.001  # some precision issues, should be 0.0
 
     with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards,
-                                   protocol=protocol) as new_db:
+                                   protocol=protocol, uses_with={'ef': 5000}) as new_db:
         time.sleep(2)
         resp = new_db.search(docs=query)
         assert len(resp) == len(query)

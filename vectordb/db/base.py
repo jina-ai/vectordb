@@ -47,6 +47,7 @@ class VectorDB(Generic[TSchema]):
         return VectorDBTyped
 
     def __init__(self, *args, **kwargs):
+        self._workspace = None
         if 'work_dir' in kwargs:
             self._workspace = kwargs['work_dir']
         if 'workspace' in kwargs:
@@ -66,13 +67,16 @@ class VectorDB(Generic[TSchema]):
                          shards: Optional[int] = None,
                          replicas: Optional[int] = None,
                          peer_ports: Optional[Union[Dict[str, List], List]] = None,
+                         uses_with: Optional[Dict] = None,
                          definition_file: Optional[str] = None,
                          obj_name: Optional[str] = None,
                          **kwargs):
         from jina import Deployment, Flow
         is_instance = False
+        uses_with = uses_with or {}
         if isinstance(cls, VectorDB):
             is_instance = True
+            uses_with = uses_with.update(**cls._uses_with)
 
         if is_instance:
             workspace = workspace or cls._workspace
@@ -134,6 +138,7 @@ class VectorDB(Generic[TSchema]):
         if use_deployment:
             jina_object = Deployment(name='indexer',
                                      uses=uses,
+                                     uses_with=uses_with,
                                      port=port,
                                      protocol=protocol,
                                      shards=shards,
@@ -145,6 +150,7 @@ class VectorDB(Generic[TSchema]):
         else:
             jina_object = Flow(port=port, protocol=protocol, **kwargs).add(name='indexer',
                                                                            uses=uses,
+                                                                           uses_with=uses_with,
                                                                            shards=shards,
                                                                            replicas=replicas,
                                                                            stateful=stateful,
@@ -187,20 +193,20 @@ class VectorDB(Generic[TSchema]):
             executor['jcloud'] = executor_jcloud_config
 
         global_jcloud_config = {
-                                'labels': {
-                                    'app': 'vectordb',
-                                },
-                                'monitor': {
-                                    'traces': {
-                                        'enable': True,
-                                    },
-                                    'metrics': {
-                                        'enable': True,
-                                        'host': 'http://opentelemetry-collector.monitor.svc.cluster.local',
-                                        'port': 4317,
-                                    },
-                                },
-                            }
+            'labels': {
+                'app': 'vectordb',
+            },
+            'monitor': {
+                'traces': {
+                    'enable': True,
+                },
+                'metrics': {
+                    'enable': True,
+                    'host': 'http://opentelemetry-collector.monitor.svc.cluster.local',
+                    'port': 4317,
+                },
+            },
+        }
         flow_dict['jcloud'] = global_jcloud_config
         import tempfile
         from jcloud.flow import CloudFlow

@@ -22,7 +22,7 @@ def docs_to_index():
 @pytest.mark.parametrize('call_method', ['docs', 'inputs', 'positional'])
 def test_hnswlib_vectordb_batch(docs_to_index, call_method, tmpdir):
     query = docs_to_index[:10]
-    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir), ef=5000)
     if call_method == 'docs':
         indexer.index(docs=docs_to_index)
         resp = indexer.search(docs=query)
@@ -44,7 +44,7 @@ def test_hnswlib_vectordb_batch(docs_to_index, call_method, tmpdir):
 @pytest.mark.parametrize('call_method', ['docs', 'inputs', 'positional'])
 def test_hnswlib_vectordb_single_query(docs_to_index, limit, call_method, tmpdir):
     query = docs_to_index[100]
-    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir), ef=5000)
     if call_method == 'docs':
         indexer.index(docs=docs_to_index)
         resp = indexer.search(docs=query, limit=limit)
@@ -70,7 +70,7 @@ def test_hnswlib_vectordb_search_field(tmpdir):
          for _ in range(2000)])
 
     query = docs_to_index[100]
-    indexer = HNSWVectorDB[MyDocTens](workspace=str(tmpdir))
+    indexer = HNSWVectorDB[MyDocTens](workspace=str(tmpdir), ef=5000)
     indexer.index(docs=docs_to_index)
     resp = indexer.search(docs=query, search_field='tens')
     assert len(resp.matches) == 10
@@ -83,7 +83,7 @@ def test_hnswlib_vectordb_search_field(tmpdir):
 def test_hnswlib_vectordb_delete(docs_to_index, call_method, tmpdir):
     query = docs_to_index[0]
     delete = MyDoc(id=query.id, text='', embedding=np.random.rand(128))
-    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir), ef=5000)
     if call_method == 'docs':
         indexer.index(docs=docs_to_index)
         resp = indexer.search(docs=query)
@@ -118,7 +118,7 @@ def test_hnswlib_vectordb_delete(docs_to_index, call_method, tmpdir):
 def test_hnswlib_vectordb_udpate_text(docs_to_index, call_method, tmpdir):
     query = docs_to_index[0]
     update = MyDoc(id=query.id, text=query.text + '_changed', embedding=query.embedding)
-    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir), ef=5000)
     if call_method == 'docs':
         indexer.index(docs=docs_to_index)
         resp = indexer.search(docs=query)
@@ -152,7 +152,7 @@ def test_hnswlib_vectordb_udpate_text(docs_to_index, call_method, tmpdir):
 
 def test_hnswlib_vectordb_restore(docs_to_index, tmpdir):
     query = docs_to_index[:100]
-    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir), ef=5000)
     indexer.index(docs=docs_to_index)
     resp = indexer.search(docs=query)
     assert len(resp) == len(query)
@@ -162,7 +162,7 @@ def test_hnswlib_vectordb_restore(docs_to_index, tmpdir):
         # assert res.text == res.matches[0].text
         # assert res.scores[0] < 0.001 # some precision issues, should be 0
     indexer.persist()
-    new_indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    new_indexer = HNSWVectorDB[MyDoc](workspace=str(tmpdir), ef=5000)
     resp = new_indexer.search(docs=query)
     assert len(resp) == len(query)
     for res in resp:
