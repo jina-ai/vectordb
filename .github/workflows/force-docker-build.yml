@@ -51,8 +51,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_JINAVECTORDB_USER }}
-          password: ${{ secrets.DOCKERHUB_JINAVECTORDB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_DEVBOT_USER }}
+          password: ${{ secrets.DOCKERHUB_DEVBOT_PWD }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
