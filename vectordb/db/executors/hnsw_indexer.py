@@ -3,6 +3,7 @@ import string
 
 from typing import TYPE_CHECKING
 
+import numpy as np
 from vectordb.db.executors.typed_executor import TypedExecutor
 from jina.serve.executors.decorators import requests, write
 
@@ -13,12 +14,29 @@ if TYPE_CHECKING:
 
 class HNSWLibIndexer(TypedExecutor):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 space='l2',
+                 max_elements=1024,
+                 ef_construction=200,
+                 ef=10,
+                 M=16,
+                 allow_replace_deleted=False,
+                 num_threads=1,
+                 *args, **kwargs):
         from docarray.index import HnswDocumentIndex
         super().__init__(*args, **kwargs)
         workspace = self.workspace.replace('[', '_').replace(']', '_')
         self.work_dir = f'{workspace}' if self.handle_persistence else f'{workspace}/{"".join(random.choice(string.ascii_lowercase) for _ in range(5))}'
-        self._indexer = HnswDocumentIndex[self._input_schema](work_dir=self.work_dir)
+        db_conf = HnswDocumentIndex.DBConfig()
+        db_conf.default_column_config.get(np.ndarray).update({'space': space,
+                                                              'ef_construction': ef_construction,
+                                                              'ef': ef,
+                                                              'max_elements': max_elements,
+                                                              'M': M,
+                                                              'allow_replace_deleted': allow_replace_deleted,
+                                                              'num_threads': num_threads})
+        db_conf.work_dir = self.work_dir
+        self._indexer = HnswDocumentIndex[self._input_schema](db_config=db_conf)
 
     def _index(self, docs, *args, **kwargs):
         self._indexer.index(docs)

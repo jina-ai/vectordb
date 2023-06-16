@@ -17,7 +17,8 @@ def pass_kwargs_as_params(func):
                 params[k] = kwargs[k]
         if len(params.keys()) > 0:
             for k in params.keys():
-                kwargs.pop(k)
+                if k in kwargs:
+                    kwargs.pop(k)
             kwargs['parameters'] = params
 
         return func(*args, **kwargs)
