@@ -47,13 +47,13 @@ jobs:
         with:
           python-version: 3.7
       - run: |
+          git fetch --depth=200
           npm install git-release-notes
           pip install twine wheel
           ./scripts/release.sh final "${{ github.event.inputs.release_reason }}" "${{github.actor}}"
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-
       - if: failure()
         run: echo "nothing to release"
       - name: bumping master version
