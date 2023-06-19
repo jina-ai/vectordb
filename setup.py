@@ -40,7 +40,7 @@ setup(
     python_requires='>=3.7',
     entry_points={
         'console_scripts': [
-            'vectordb=vectordb.__main__:deploy',
+            'vectordb=vectordb.__main__:vectordb',
         ],
     },
     extras_require={
