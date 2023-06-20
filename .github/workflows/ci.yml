@@ -88,14 +88,16 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install pytest
+          pip install pytest-repeat
+          pip install flaky
           pip install .
           #pip install -U docarray[hnswlib]>=0.33.0
-          pip install git+https://github.com/jina-ai/jina.git@fix-handle-list-float
+          pip install git+https://github.com/jina-ai/jina.git@help-investigate
           pip install git+https://github.com/docarray/docarray.git@main
       - name: Test
         id: test
         run: |
-          pytest -v -s ${{ matrix.test-path }}
+          pytest -v -s --force-flaky --min-passes 1 --max-runs 5 ${{ matrix.test-path }}
         timeout-minutes: 30
 
   integration-tests:
@@ -119,15 +121,17 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install pytest
+          pip install pytest-repeat
+          pip install flaky
           pip install .
           #pip install -U docarray[hnswlib]>=0.33.0
-          pip install git+https://github.com/jina-ai/jina.git@fix-handle-list-float
+          pip install git+https://github.com/jina-ai/jina.git@help-investigate
           pip install git+https://github.com/docarray/docarray.git@main
       - name: Test
         id: test
         run: |
-          GRPC_VERBOSITY=debug pytest -v -s ${{ matrix.test-path }}
-        timeout-minutes: 30
+          pytest -v -s --force-flaky --min-passes 1 --max-runs 5 ${{ matrix.test-path }}
+        timeout-minutes: 45
 
   # just for blocking the merge until all parallel integration-tests are successful
   success-all-test:

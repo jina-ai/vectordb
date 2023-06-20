@@ -47,6 +47,8 @@ setup(
         'test': [
             'pytest',
             'pytest-asyncio',
+            'pytest-repeat',
+            'flaky'
         ],
     },
     install_requires=requirements,
