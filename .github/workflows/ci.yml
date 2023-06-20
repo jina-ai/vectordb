@@ -126,7 +126,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          pytest -v -s ${{ matrix.test-path }}
+          GRPC_VERBOSITY=debug pytest -v -s ${{ matrix.test-path }}
         timeout-minutes: 30
 
   # just for blocking the merge until all parallel integration-tests are successful
