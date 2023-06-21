@@ -89,6 +89,7 @@ jobs:
           python -m pip install wheel
           pip install pytest
           pip install pytest-repeat
+          pip install pytest-timeout
           pip install flaky
           pip install .
           #pip install -U docarray[hnswlib]>=0.33.0
@@ -122,6 +123,7 @@ jobs:
           python -m pip install wheel
           pip install pytest
           pip install pytest-repeat
+          pip install pytest-timeout
           pip install flaky
           pip install .
           #pip install -U docarray[hnswlib]>=0.33.0
