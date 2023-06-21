@@ -62,7 +62,7 @@ jobs:
           echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh unit 1)"
       - id: set-matrix-integration
         run: |
-          echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh integration_local 1)"
+          echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh integration 1)"
     outputs:
       matrix-unit: ${{ steps.set-matrix-unit.outputs.matrix }}
       matrix-integration: ${{ steps.set-matrix-integration.outputs.matrix }}
@@ -133,7 +133,7 @@ jobs:
         id: test
         run: |
           pytest -v -s --force-flaky --min-passes 1 --max-runs 5 ${{ matrix.test-path }}
-        timeout-minutes: 45
+        timeout-minutes: 30
 
   # just for blocking the merge until all parallel integration-tests are successful
   success-all-test:
