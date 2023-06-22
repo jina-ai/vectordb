@@ -40,6 +40,23 @@ class EnvironmentVarCtxtManager:
             os.unsetenv(key)
 
 
+def get_uri(id: str, tag: str):
+    import requests
+    from hubble import Auth
+
+    r = requests.get(
+        f"https://apihubble.jina.ai/v2/executor/getMeta?id={id}&tag={tag}",
+        headers={"Authorization": f"token {Auth.get_auth_token()}"},
+    )
+    _json = r.json()
+    if _json is None:
+        print(f'Could not find image with id {id} and tag {tag}')
+        return
+    _image_name = _json['data']['name']
+    _user_name = _json['meta']['owner']['name']
+    return f'jinaai+docker://{_user_name}/{_image_name}:{tag}'
+
+
 def get_random_tag():
     return 't-' + uuid.uuid4().hex[:5]
 
@@ -110,4 +127,6 @@ def push_vectordb_to_hubble(
     with open(os.path.join(tmpdir, 'config.yml'), mode='w', encoding='utf-8') as f:
         f.write(content)
 
-    return _push_to_hubble(tmpdir, image_name, tag, True, False)
+    executor_id = _push_to_hubble(tmpdir, image_name, tag, True, False)
+    id, tag = executor_id.split(':')
+    return get_uri(id, tag)

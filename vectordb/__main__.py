@@ -39,8 +39,10 @@ def vectordb():
 )
 def deploy(db, protocol, shards):
     definition_file, _, obj_name = db.partition(":")
+    if not definition_file.endswith('.py'):
+        definition_file = f'{definition_file}.py'
     protocol = protocol.split(',')
-    VectorDB.deploy(protoocl=protocol,
+    VectorDB.deploy(protocol=protocol,
                     shards=shards,
                     definition_file=definition_file,
                     obj_name=obj_name)
