@@ -56,4 +56,4 @@ setup(
 )
 
 import subprocess
-subprocess.run(['pip', 'install', 'docarray[hnswlib]>=0.33.0'])
+subprocess.run(['pip', 'install', 'docarray[hnswlib]>=0.34.0'])
