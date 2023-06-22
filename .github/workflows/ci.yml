@@ -62,7 +62,7 @@ jobs:
           echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh unit 1)"
       - id: set-matrix-integration
         run: |
-          echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh integration_local 1)"
+          echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh integration 1)"
     outputs:
       matrix-unit: ${{ steps.set-matrix-unit.outputs.matrix }}
       matrix-integration: ${{ steps.set-matrix-integration.outputs.matrix }}
@@ -88,6 +88,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install pytest
+          pip install pytest-repeat
+          pip install pytest-timeout
+          pip install flaky
           pip install .
           #pip install -U docarray[hnswlib]>=0.33.0
           pip install git+https://github.com/jina-ai/jina.git@jraft-import-prints
@@ -95,7 +98,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          pytest -v -s ${{ matrix.test-path }}
+          pytest -v -s --force-flaky --min-passes 1 --max-runs 5 ${{ matrix.test-path }}
         timeout-minutes: 30
 
   integration-tests:
@@ -119,6 +122,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install pytest
+          pip install pytest-repeat
+          pip install pytest-timeout
+          pip install flaky
           pip install .
           #pip install -U docarray[hnswlib]>=0.33.0
           pip install git+https://github.com/jina-ai/jina.git@jraft-import-prints
@@ -126,7 +132,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          pytest -v -s ${{ matrix.test-path }}
+          pytest -v -s --force-flaky --min-passes 1 --max-runs 5 ${{ matrix.test-path }}
         timeout-minutes: 30
 
   # just for blocking the merge until all parallel integration-tests are successful

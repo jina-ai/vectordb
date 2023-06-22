@@ -47,6 +47,9 @@ setup(
         'test': [
             'pytest',
             'pytest-asyncio',
+            'pytest-repeat',
+            'flaky',
+            'pytest-timeout'
         ],
     },
     install_requires=requirements,
