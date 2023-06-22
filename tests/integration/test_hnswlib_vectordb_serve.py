@@ -1,3 +1,4 @@
+import multiprocessing
 import pytest
 import random
 import time
@@ -22,6 +23,7 @@ def docs_to_index():
          for _ in range(2000)])
 
 
+@pytest.mark.timeout(180)
 @pytest.mark.parametrize('shards', [1, 2])
 @pytest.mark.parametrize('replicas', [1, 3])
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
@@ -42,6 +44,7 @@ def test_hnswlib_vectordb_batch(docs_to_index, replicas, shards, protocol, tmpdi
             assert res.scores[0] < 0.001  # some precision issues, should be 0.0
 
 
+@pytest.mark.timeout(270)
 @pytest.mark.parametrize('limit', [1, 10, 2000, 2500])
 @pytest.mark.parametrize('shards', [1, 2])
 @pytest.mark.parametrize('replicas', [1, 3])
@@ -61,6 +64,7 @@ def test_hnswlib_vectordb_single_query(docs_to_index, limit, replicas, shards, p
         assert resp.scores[0] < 0.001  # some precision issues, should be 0.0
 
 
+@pytest.mark.timeout(180)
 @pytest.mark.parametrize('shards', [1, 2])
 @pytest.mark.parametrize('replicas', [1, 3])
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
@@ -90,6 +94,7 @@ def test_hnswlib_vectordb_delete(docs_to_index, replicas, shards, protocol, tmpd
         assert resp.text != resp.matches[0].text
 
 
+@pytest.mark.timeout(180)
 @pytest.mark.parametrize('shards', [1, 2])
 @pytest.mark.parametrize('replicas', [1, 3])
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
@@ -118,6 +123,7 @@ def test_hnswlib_vectordb_udpate_text(docs_to_index, replicas, shards, protocol,
         assert resp.matches[0].text == resp.text + '_changed'
 
 
+@pytest.mark.timeout(180)
 @pytest.mark.parametrize('shards', [1, 2])
 @pytest.mark.parametrize('replicas', [1, 3])
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket'])
