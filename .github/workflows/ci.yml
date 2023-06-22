@@ -90,7 +90,7 @@ jobs:
           pip install pytest
           pip install .
           #pip install -U docarray[hnswlib]>=0.33.0
-          pip install git+https://github.com/jina-ai/jina.git@fix-handle-list-float
+          pip install git+https://github.com/jina-ai/jina.git@jraft-import-prints
           pip install git+https://github.com/docarray/docarray.git@main
       - name: Test
         id: test
@@ -121,7 +121,7 @@ jobs:
           pip install pytest
           pip install .
           #pip install -U docarray[hnswlib]>=0.33.0
-          pip install git+https://github.com/jina-ai/jina.git@fix-handle-list-float
+          pip install git+https://github.com/jina-ai/jina.git@jraft-import-prints
           pip install git+https://github.com/docarray/docarray.git@main
       - name: Test
         id: test
