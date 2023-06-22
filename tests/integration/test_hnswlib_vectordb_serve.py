@@ -31,7 +31,7 @@ def test_hnswlib_vectordb_batch(docs_to_index, replicas, shards, protocol, tmpdi
     query = docs_to_index[:10]
     port = random_port()
     with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol, port=port,
-                                   uses_with={'ef': 5000}) as db:
+                                   uses_with={'ef': 5000}, timeout_ready=10000) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -53,7 +53,7 @@ def test_hnswlib_vectordb_single_query(docs_to_index, limit, replicas, shards, p
     query = docs_to_index[100]
     port = random_port()
     with HNSWVectorDB[MyDoc](ef=5000).serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                            protocol=protocol) as db:
+                                            protocol=protocol, timeout_ready=10000) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -73,7 +73,7 @@ def test_hnswlib_vectordb_delete(docs_to_index, replicas, shards, protocol, tmpd
     port = random_port()
     delete = MyDoc(id=query.id, text='', embedding=np.random.rand(128))
     with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol, port=port,
-                                   uses_with={'ef': 5000}) as db:
+                                   uses_with={'ef': 5000}, timeout_ready=10000) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -103,7 +103,7 @@ def test_hnswlib_vectordb_udpate_text(docs_to_index, replicas, shards, protocol,
     port = random_port()
     update = MyDoc(id=query.id, text=query.text + '_changed', embedding=query.embedding)
     with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, protocol=protocol, port=port,
-                                   uses_with={'ef': 5000}) as db:
+                                   uses_with={'ef': 5000}, timeout_ready=10000) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -132,7 +132,7 @@ def test_hnswlib_vectordb_restore(docs_to_index, replicas, shards, protocol, tmp
     port = random_port()
 
     with HNSWVectorDB[MyDoc](ef=5000).serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                            protocol=protocol) as db:
+                                            protocol=protocol, timeout_ready=10000) as db:
         db.index(docs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -145,7 +145,7 @@ def test_hnswlib_vectordb_restore(docs_to_index, replicas, shards, protocol, tmp
             assert res.scores[0] < 0.001  # some precision issues, should be 0.0
 
     with HNSWVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                   protocol=protocol, uses_with={'ef': 5000}) as new_db:
+                                   protocol=protocol, uses_with={'ef': 5000}, timeout_ready=10000) as new_db:
         time.sleep(2)
         resp = new_db.search(docs=query)
         assert len(resp) == len(query)

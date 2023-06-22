@@ -92,9 +92,7 @@ jobs:
           pip install pytest-timeout
           pip install flaky
           pip install .
-          #pip install -U docarray[hnswlib]>=0.33.0
-          pip install git+https://github.com/jina-ai/jina.git@help-investigate
-          pip install git+https://github.com/docarray/docarray.git@main
+          pip install -U docarray[hnswlib]>=0.34.0
       - name: Test
         id: test
         run: |
@@ -126,9 +124,7 @@ jobs:
           pip install pytest-timeout
           pip install flaky
           pip install .
-          #pip install -U docarray[hnswlib]>=0.33.0
-          pip install git+https://github.com/jina-ai/jina.git@help-investigate
-          pip install git+https://github.com/docarray/docarray.git@main
+          pip install -U docarray[hnswlib]>=0.34.0
       - name: Test
         id: test
         run: |

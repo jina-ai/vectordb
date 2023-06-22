@@ -31,7 +31,7 @@ def test_inmemory_vectordb_batch(docs_to_index, replicas, shards, protocol, tmpd
     query = docs_to_index[:10]
     port = random_port()
     with InMemoryExactNNVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                              protocol=protocol) as db:
+                                              protocol=protocol, timeout_ready=10000) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -53,7 +53,7 @@ def test_inmemory_vectordb_single_query(docs_to_index, limit, replicas, shards, 
     query = docs_to_index[100]
     port = random_port()
     with InMemoryExactNNVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                              protocol=protocol) as db:
+                                              protocol=protocol, timeout_ready=10000) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -73,7 +73,7 @@ def test_inmemory_vectordb_delete(docs_to_index, replicas, shards, protocol, tmp
     port = random_port()
     delete = MyDoc(id=query.id, text='', embedding=np.random.rand(128))
     with InMemoryExactNNVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                              protocol=protocol) as db:
+                                              protocol=protocol, timeout_ready=10000) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -103,7 +103,7 @@ def test_inmemory_vectordb_udpate_text(docs_to_index, replicas, shards, protocol
     port = random_port()
     update = MyDoc(id=query.id, text=query.text + '_changed', embedding=query.embedding)
     with InMemoryExactNNVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                              protocol=protocol) as db:
+                                              protocol=protocol, timeout_ready=10000) as db:
         db.index(inputs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -132,7 +132,7 @@ def test_inmemory_vectordb_restore(docs_to_index, replicas, shards, protocol, tm
     port = random_port()
 
     with InMemoryExactNNVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                              protocol=protocol) as db:
+                                              protocol=protocol, timeout_ready=10000) as db:
         db.index(docs=docs_to_index)
         if replicas > 1:
             time.sleep(2)
@@ -145,7 +145,7 @@ def test_inmemory_vectordb_restore(docs_to_index, replicas, shards, protocol, tm
             assert res.scores[0] > 0.99  # some precision issues, should be 1
 
     with InMemoryExactNNVectorDB[MyDoc].serve(workspace=str(tmpdir), replicas=replicas, shards=shards, port=port,
-                                              protocol=protocol) as new_db:
+                                              protocol=protocol, timeout_ready=10000) as new_db:
         time.sleep(2)
         resp = new_db.search(docs=query)
         assert len(resp) == len(query)
