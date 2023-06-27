@@ -167,20 +167,17 @@ if __name__ == '__main__':
 ```jc login```
 
 3. Deploy:
-  ```bash
-  vectordb deploy --db example:db
-  ```
-
-  <details>
-  <summary>Show command output</summary>
+```bash
+vectordb deploy --db example:db
+```
 
 ![](./.github/images/vectordb_deploy_screenshot.png)
 
-  </details>
   
 4. Connect from Client
 
 Once deployed, you can use `vectordb` Client to access the given endpoint.
+
 ```python
 from vectordb import Client
 
@@ -221,7 +218,7 @@ This database implements Approximate Nearest Neighbour based on HNSW algorithm u
 
 It containes more configuration options:
 
- - workspace: The folder where the required data will be persisted.
+- workspace: The folder where the required data will be persisted.
  
 Then a set of configurations that tweak the performance and accuracy of the NN search algorithm. You can find more details in [HNSWLib README](https://github.com/nmslib/hnswlib)
 
