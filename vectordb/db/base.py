@@ -126,7 +126,7 @@ class VectorDB(Generic[TSchema]):
             # here we would need to push the EXECUTOR TO HUBBLE AND CHANGE THE USES
             assert definition_file is not None, 'Trying to create a Jina Object for Deployment without the file where the vectordb object/class is defined'
             assert obj_name is not None, 'Trying to create a Jina Object for Deployment without the name of the vectordb object/class to deploy'
-            uses = f'jinaai+docker://{push_vectordb_to_hubble(vectordb_name=obj_name, definition_file_path=definition_file)}'
+            uses = f'{push_vectordb_to_hubble(vectordb_name=obj_name, definition_file_path=definition_file)}'
             use_deployment = False
 
         if 'websocket' in protocol_list:  # websocket not supported for Deployment
@@ -193,6 +193,7 @@ class VectorDB(Generic[TSchema]):
             executor['jcloud'] = executor_jcloud_config
 
         global_jcloud_config = {
+            'docarray': '0.34.0',
             'labels': {
                 'app': 'vectordb',
             },
@@ -213,6 +214,7 @@ class VectorDB(Generic[TSchema]):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             flow_path = os.path.join(tmpdir, 'flow.yml')
+            print(f' flow_path {flow_path}')
             with open(flow_path, 'w') as f:
                 yaml.safe_dump(flow_dict, f, sort_keys=False)
 
