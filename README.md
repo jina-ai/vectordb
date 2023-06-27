@@ -174,17 +174,7 @@ if __name__ == '__main__':
   <details>
   <summary>Show command output</summary>
 
-  ```text
-  ╭──────────────┬────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-  │ App ID       │                                           <id>                                                         │
-  ├──────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-  │ Phase        │                                       Serving                                                       │
-  ├──────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-  │ Endpoint     │                                 grpc://<id>.wolf.jina.ai                                               │
-  ├──────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-  │ App logs     │                                   dashboards.wolf.jina.ai                                         │
-  ╰──────────────┴────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-  ```
+![](./.github/images/vectordb_deploy_screenshot.png)
 
   </details>
   
@@ -194,15 +184,21 @@ Once deployed, you can use `vectordb` Client to access the given endpoint.
 ```python
 from vectordb import Client
 
-c = Client(address=' grpc://<id>.wolf.jina.ai')
+c = Client(address='grpcs://<id>.wolf.jina.ai')
 ```
 
 5. Manage your deployed instances using [jcloud](https://github.com/jina-ai/jcloud):
 You can then list and delete your deployed DBs with `jc` command:
 
-```jc list <>```
+```jcloud list <>```
 
-```jc delete <>```
+![](./.github/images/vectordb_deploy_list.png)
+
+```jcloud pause <>``` or ```jcloud resume <>```
+
+![](./.github/images/vectordb_deploy_paused.png)
+
+```jcloud remove <>```
    
 ## ⚙️ Configure
 
