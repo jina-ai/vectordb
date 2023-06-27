@@ -167,13 +167,13 @@ if __name__ == '__main__':
 ```jc login```
 
 3. Deploy:
+
 ```bash
 vectordb deploy --db example:db
 ```
 
 ![](./.github/images/vectordb_deploy_screenshot.png)
 
-  
 4. Connect from Client
 
 Once deployed, you can use `vectordb` Client to access the given endpoint.
