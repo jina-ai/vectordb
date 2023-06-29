@@ -1,5 +1,6 @@
 from jina import Executor
 from jina.serve.executors import _FunctionWithSchema
+from jina.serve.executors import __dry_run_endpoint__
 
 from typing import TypeVar, Generic, Type, Optional, TYPE_CHECKING
 from vectordb.utils.create_doc_type import create_output_doc_type
@@ -27,12 +28,13 @@ class TypedExecutor(Executor, Generic[InputSchema, OutputSchema]):
         from docarray import DocList
         self._num_replicas = getattr(self.runtime_args, 'replicas', 1)
         for k, v in self._requests.items():
-            if k != '/search':
-                self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
-                                                        DocList[self._input_schema])
-            else:
-                self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
-                                                        DocList[self._output_schema])
+            if k != __dry_run_endpoint__:
+                if k != '/search':
+                    self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
+                                                            DocList[self._input_schema])
+                else:
+                    self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
+                                                            DocList[self._output_schema])
 
     @property
     def handle_persistence(self):
