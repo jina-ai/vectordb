@@ -145,7 +145,7 @@ db = InMemoryExactNNVectorDB[MyDoc](workspace='./vectordb') # notice how `db` is
 
 if __name__ == '__main__':
     # make sure to protect this part of the code
-    with app.serve() as service:
+    with db.serve() as service:
         service.block()
 ```
 
