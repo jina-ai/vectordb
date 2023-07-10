@@ -4,6 +4,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -74,4 +75,23 @@
 
  - [[```16ceb6d7```](https://github.com/jina-ai/jina/commit/16ceb6d72227aefae47b62e1ef234e6ad98b6483)] __-__ add long description (#36) (*Joan Fontanals*)
  - [[```28ea2948```](https://github.com/jina-ai/jina/commit/28ea29485dcc516ed829a251388612cc664bb96a)] __-__ __version__: the next version will be 0.0.5 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-6></a>
+## Release Note (`0.0.6`)
+
+> Release time: 2023-07-10 13:22:08
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 📗 Documentation
+
+ - [[```cf1b6b29```](https://github.com/jina-ai/jina/commit/cf1b6b29d543af91cd20bf800043eee6ebf4fe53)] __-__ fix README (#37) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```ca47a292```](https://github.com/jina-ai/jina/commit/ca47a292f26a758a181a36a75e3c33a9a578ed5f)] __-__ __version__: the next version will be 0.0.6 (*Jina Dev Bot*)
 
