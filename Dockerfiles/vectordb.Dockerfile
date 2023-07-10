@@ -8,6 +8,4 @@ COPY . /vectordb/
 
 RUN cd /vectordb && pip install -U pip && pip install .
 
-RUN pip install -U docarray[hnswlib]>=0.34
-
 ENTRYPOINT ["vectordb"]
