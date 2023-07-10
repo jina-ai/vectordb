@@ -48,12 +48,12 @@ To get started with Vector Database, simply follow these easy steps, in this exa
 2. Define your Index Document schema using [DocArray](https://docs.docarray.org/user_guide/representing/first_step/):
 
 ```python
-from docarray import BaseDoc
+from docarray import DocList, BaseDoc
 from docarray.typing import NdArray
 
-class MyTextDoc(TextDoc):
-   text: str = ''
-   embedding: NdArray[768]
+class MyTextDoc(BaseDoc):
+    text: str = ''
+    embedding: NdArray[128]
 ```
 
 Make sure that the schema has a field `schema` as a `tensor` type with shape annotation as in the example.
@@ -61,11 +61,15 @@ Make sure that the schema has a field `schema` as a `tensor` type with shape ann
 3. Use any of the pre-built databases with the document schema (InMemoryExactNNVectorDB or HNSWVectorDB): 
 
 ```python
+import numpy as np
 from vectordb import InMemoryExactNNVectorDB, HNSWVectorDB
 db = InMemoryExactNNVectorDB[MyTextDoc](workspace='./workspace_path')
 
 db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
-results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128)]), limit=10)
+results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128))]), limit=10)
+
+for res in results:
+    print(f'{res.matches}')
 ```
 
 Each result will contain the matches under the `.matches` attribute as a `DocList[MyTextDoc]`
@@ -73,8 +77,8 @@ Each result will contain the matches under the `.matches` attribute as a `DocLis
 4. Serve the database as a service with any of these protocols: `gRPC`, `HTTP` and `Webscoket`.
 
 ```python
-with InMemoryExactNNVectorDB[MyTextDoc].serve(workspace='./hnwslib_path', protocol='grpc', port=12345, replicas=1, shards=1) as service:
-   service.index(inputs=DocList[TextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
+with InMemoryExactNNVectorDB[MyTextDoc].serve(workspace='./db_path', protocol='grpc', port=12345, replicas=1, shards=1) as service:
+   service.index(inputs=DocList[MyTextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
    service.block()
 ```
 
@@ -83,8 +87,8 @@ with InMemoryExactNNVectorDB[MyTextDoc].serve(workspace='./hnwslib_path', protoc
 ```python
 from vectordb import Client
 
-c = Client[MyTextDoc](address='grpc://0.0.0.0:12345')
-results = c.search(inputs=DocList[TextDoc]([TextDoc(text='query', embedding=np.random.rand(128)]), limit=10)
+client = Client[MyTextDoc](address='grpc://0.0.0.0:12345')
+results = client.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128))]), limit=10)
 ```
 
 ## CRUD API:
