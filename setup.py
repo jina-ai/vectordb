@@ -12,6 +12,13 @@ try:
 except FileNotFoundError:
     __version__ = '0.0.0'
 
+try:
+    with open('README.md', encoding='utf-8') as fp:
+        _long_description = fp.read()
+except FileNotFoundError:
+    _long_description = ''
+
+
 # Read the contents of requirements.txt
 with open('requirements.txt', 'r') as f:
     requirements = f.read().splitlines()
@@ -20,6 +27,8 @@ setup(
     name='vectordb',
     version=__version__,
     description='The Python VectorDB. Build your vector database from working as a library to scaling as a database in the cloud',
+    long_description=_long_description,
+    long_description_content_type='text/markdown',
     author='Jina AI',
     author_email='hello@jina.ai',
     license='Apache 2.0',
