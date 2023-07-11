@@ -7,6 +7,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -135,4 +136,23 @@
 
  - [[```942f1f5d```](https://github.com/jina-ai/jina/commit/942f1f5d43c2433ecfbaa0f3ae66c90d6caa896d)] __-__ add badges to README (#39) (*Joan Fontanals*)
  - [[```d012a48c```](https://github.com/jina-ai/jina/commit/d012a48cfeb79f2ffe52bf24f5a8e9f11b637f92)] __-__ __version__: the next version will be 0.0.8 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-9></a>
+## Release Note (`0.0.9`)
+
+> Release time: 2023-07-11 15:58:29
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Deepankar Mahapatro,  Jina Dev Bot,  🙇
+
+
+### 🏁 Unit Test and CICD
+
+ - [[```d1d24d9b```](https://github.com/jina-ai/jina/commit/d1d24d9bc6596bca2cdd055885829e345318820c)] __-__ add tag.yml (#41) (*Deepankar Mahapatro*)
+
+### 🍹 Other Improvements
+
+ - [[```9dc3c63e```](https://github.com/jina-ai/jina/commit/9dc3c63e6e9eb8b79336194f9a52e66a77c0faef)] __-__ __version__: the next version will be 0.0.9 (*Jina Dev Bot*)
 
