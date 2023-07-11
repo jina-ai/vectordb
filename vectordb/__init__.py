@@ -1,4 +1,4 @@
-__version__ = '0.0.8'
+__version__ = '0.0.9'
 
 from vectordb.db.inmemory_exact_vectordb import InMemoryExactNNVectorDB
 from vectordb.db.hnsw_vectordb import HNSWVectorDB
