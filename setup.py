@@ -20,7 +20,7 @@ except FileNotFoundError:
 
 
 # Read the contents of requirements.txt
-with open('requirements.txt', 'r') as f:
+with open(path.join(path.dirname(__file__), 'requirements.txt'), 'r') as f:
     requirements = f.read().splitlines()
 
 setup(
