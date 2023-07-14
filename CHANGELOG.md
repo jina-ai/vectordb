@@ -10,6 +10,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -192,4 +193,29 @@
 
  - [[```e298e6ef```](https://github.com/jina-ai/jina/commit/e298e6ef500193d6a4e98760b2137c071514a704)] __-__ add MANIFEST.in (#43) (*Joan Fontanals*)
  - [[```790f6341```](https://github.com/jina-ai/jina/commit/790f6341007a744976cbd0bc431ba2d3bb5327e8)] __-__ __version__: the next version will be 0.0.11 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-14></a>
+## Release Note (`0.0.14`)
+
+> Release time: 2023-07-14 10:30:51
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Joan Fontanals Martinez,  Han Xiao,  Deepankar Mahapatro,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```5ef1c964```](https://github.com/jina-ai/jina/commit/5ef1c964953e7aac9f0336317de29fb83b408938)] __-__ fix single quotes (#47) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```14bc575b```](https://github.com/jina-ai/jina/commit/14bc575ba99387b5239e4b607741eb151da16182)] __-__ upgrade version (*Joan Fontanals Martinez*)
+ - [[```daef4aac```](https://github.com/jina-ai/jina/commit/daef4aac87751ecf191da1ab75dd9938865a5dc5)] __-__ fix readme (*Han Xiao*)
+ - [[```c24b8d95```](https://github.com/jina-ai/jina/commit/c24b8d95dae0cd43d4b0e61dd0c587d85b2950d8)] __-__ update readme (*Han Xiao*)
+ - [[```1df0dcc0```](https://github.com/jina-ai/jina/commit/1df0dcc0901480deccf3b580c1e00b1f4bc0dfb6)] __-__ fix message in readme (*Joan Fontanals Martinez*)
+ - [[```ced29140```](https://github.com/jina-ai/jina/commit/ced291408538c21e5d310cc643c080789b382b4d)] __-__ fix help message serve (#45) (*Joan Fontanals*)
+ - [[```7efdc669```](https://github.com/jina-ai/jina/commit/7efdc669ac0cef150e6972f757b9525f66aed52e)] __-__ ignore warnings (#44) (*Deepankar Mahapatro*)
+ - [[```8e1ab38b```](https://github.com/jina-ai/jina/commit/8e1ab38b5017feacac1caa64da5a3fc039eb872a)] __-__ __version__: the next version will be 0.0.12 (*Jina Dev Bot*)
 
