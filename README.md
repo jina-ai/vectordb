@@ -1,7 +1,6 @@
-
 ![VectorDB from Jina AI logo](.github%2Fimages%2Fvectordb-logo.png)
+
 <a href="https://pypi.org/project/vectordb/"><img alt="PyPI" src="https://img.shields.io/pypi/v/vectordb?label=Release&style=flat-square"></a>
-<!--<a href="https://codecov.io/gh/jina-ai/vectordb"><img alt="Codecov branch" src="https://img.shields.io/codecov/c/github/jina-ai/vectordb/master?&logo=Codecov&logoColor=white&style=flat-square"></a>-->
 <a href="https://discord.jina.ai"><img src="https://img.shields.io/discord/1106542220112302130?logo=discord&logoColor=white&style=flat-square"></a>
 <a href="https://pypistats.org/packages/vectordb"><img alt="PyPI - Downloads from official pypistats" src="https://img.shields.io/pypi/dm/vectordb?style=flat-square"></a>
 <a href="https://github.com/jina-ai/vectordb/actions/workflows/cd.yml"><img alt="Github CD status" src="https://github.com/jina-ai/vectordb/actions/workflows/cd.yml/badge.svg"></a>
