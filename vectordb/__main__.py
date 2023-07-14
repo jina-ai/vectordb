@@ -11,7 +11,7 @@ def vectordb():
     pass
 
 
-@vectordb.command(help='Deploy a vectorDB app to Jina AI Cloud')
+@vectordb.command(help='Deploy a vectorDB db to Jina AI Cloud')
 @click.option(
     '--db',
     '--app',
@@ -48,7 +48,7 @@ def deploy(db, protocol, shards):
                     obj_name=obj_name)
 
 
-@vectordb.command(help='Deploy a vectorDB app to Jina AI Cloud')
+@vectordb.command(help='Locally serve a vectorDB db')
 @click.option(
     '--db',
     '--app',
