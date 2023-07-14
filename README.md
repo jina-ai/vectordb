@@ -68,7 +68,7 @@ from docarray.typing import NdArray
 
 class ToyDoc(BaseDoc):
   text: str = ''
-  embedding: NdArray[float, 128]
+  embedding: NdArray[128]
 ```
 
 2. Opt for a pre-built database (like `InMemoryExactNNVectorDB` or `HNSWVectorDB`), and apply the schema:
@@ -136,19 +136,12 @@ Start by embedding your database instance or class into a Python file:
 ```python
 # example.py
 from docarray import BaseDoc
-from docarray.typing import NdArray
 from vectordb import InMemoryExactNNVectorDB
 
-
-class MyDoc(BaseDoc):
-    text: str
-    embedding: NdArray[128]
-
-
-db = InMemoryExactNNVectorDB[MyDoc](workspace='./vectordb') # notice how `db` is the instance that we want to serve
+db = InMemoryExactNNVectorDB[ToyDoc](workspace='./vectordb') # notice how `db` is the instance that we want to serve
 
 if __name__ == '__main__':
-    # make sure to protect this part of the code
+    # IMPORTANT: make sure to protect this part of the code using __main__ guard
     with db.serve() as service:
         service.block()
 ```
