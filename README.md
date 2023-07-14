@@ -306,6 +306,6 @@ Need help with `vectordb`? Interested in using it but require certain features t
 
 ## Contributing
 
-DocArray is backed by [Jina AI](https://jina.ai) and licensed under Apache-2.0. Contributions from the community are greatly appreciated! If you have an idea for a new feature or an improvement, we would love to hear from you. We're always looking for ways to make `vectordb` more user-friendly and effective.
+vectordb is backed by [Jina AI](https://jina.ai) and licensed under Apache-2.0. Contributions from the community are greatly appreciated! If you have an idea for a new feature or an improvement, we would love to hear from you. We're always looking for ways to make `vectordb` more user-friendly and effective.
 
 
