@@ -1,0 +1,6 @@
+recursive-include vectordb/ *
+global-exclude __pycache__/*
+include LICENSE
+include requirements.txt
+prune test/
+prune **/tests/
