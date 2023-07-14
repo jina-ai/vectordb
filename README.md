@@ -19,8 +19,6 @@
 
 `vectordb` capitalizes on the powerful retrieval prowess of [DocArray](https://github.com/docarray/docarray) and the scalability, reliability, and serving capabilities of [Jina](https://github.com/jina-ai/jina). Here's the magic: DocArray serves as the engine driving vector search logic, while Jina guarantees efficient and scalable index serving. This synergy culminates in a robust, yet user-friendly vector database experience - that's `vectordb` for you.
 
-> **Note** 
-> Vector databases are advanced storage systems for embeddings, capturing semantic relationships between objects. These allow for nuanced similarity searches across diverse data types, enhancing Language Learning Models (LLMs) by improving context understanding and result generation.
 
 
 <!--In simple terms, one can think as [DocArray](https://github.com/docarray/docarray) being a the `Lucene` algorithmic logic for Vector Search powering the retrieval capabilities and [Jina](https://github.com/jina-ai/jina), the ElasticSearch making sure that the indexes are served and scaled for the clients, `vectordb` wraps these technologies to give a powerful and easy to use experience to
@@ -192,7 +190,11 @@ You can then list, pause, resume or delete your deployed DBs with `jc` command:
 
 ## Advanced Topics
 
-### CRUD Support
+### What is a vector database?
+
+Vector databases serve as sophisticated repositories for embeddings, capturing the essence of semantic similarity among disparate objects. These databases facilitate similarity searches across a myriad of multimodal data types, paving the way for a new era of information retrieval. By providing contextual understanding and enriching generation results, vector databases greatly enhance the performance and utility of Language Learning Models (LLM). This underscores their pivotal role in the evolution of data science and machine learning applications.
+
+### CRUD support
 
 Both the local library usage and the client-server interactions in `vectordb` share the same API. This provides `index`, `search`, `update`, and `delete` functionalities:
 
@@ -201,7 +203,7 @@ Both the local library usage and the client-server interactions in `vectordb` sh
 - `delete`: Accepts a `DocList` of documents to remove from the index. Only the `id` attribute is necessary, so make sure to track the `indexed` `IDs` if you need to delete documents.
 - `update`: Accepts a `DocList` of documents to update in the index. The `update` operation will replace the `indexed` document with the same index with the attributes and payload from the input documents.
 
-### Running `vectordb` as a Service
+### Service endpoint configuration
 
 You can serve `vectordb` and access it from a client with the following parameters:
 
@@ -209,14 +211,14 @@ You can serve `vectordb` and access it from a client with the following paramete
 - port: The service access port. Can be a list of ports for each provided protocol. Default is 8081.
 - workspace: The path where the VectorDB persists required data. Default is '.' (current directory).
 
-### Scaling Your DB
+### Scaling your DB
 
 You can set two scaling parameters when serving or deploying your Vector Databases with `vectordb`:
 
 - Shards: The number of data shards. This improves latency, as `vectordb` ensures Documents are indexed in only one of the shards. Search requests are sent to all shards and results are merged.
 - Replicas: The number of DB replicas. `vectordb` uses the [RAFT](https://raft.github.io/) algorithm to sync the index between replicas of each shard. This increases service availability and search throughput, as multiple replicas can respond in parallel to more search requests while allowing CRUD operations. Note: In JCloud deployments, the number of replicas is set to 1. We're working on enabling replication in the cloud.
 
-### Vector Search Configuration
+### Vector search configuration
 
 Here are the parameters for each `VectorDB` type:
 
