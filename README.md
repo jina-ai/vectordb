@@ -36,6 +36,26 @@ use and develop vector databases.-->
 pip install vectordb
 ```
 
+<table>
+  <tr>
+    <td>
+      <a href="#getting-started-with-vectordb-locally">
+        <img src="https://github.com/jina-ai/vectordb/blob/main/.github%2Fimages%2Fguide-1.png?raw=true" alt="Use vectordb from Jina AI locally" width="100%">
+      </a>
+    </td>
+    <td>
+      <a href="#running-vectordb-as-a-service">
+        <img src="https://github.com/jina-ai/vectordb/blob/main/.github%2Fimages%2Fguide-1.png?raw=true" alt="Use vectordb from Jina AI as a service" width="100%">
+      </a>
+    </td>
+    <td>
+      <a href="#hosting-vectordb-on-jina-ai-cloud">
+        <img src="https://github.com/jina-ai/vectordb/blob/main/.github%2Fimages%2Fguide-1.png?raw=true" alt="Use vectordb from Jina AI on Jina AI Cloud" width="100%">
+      </a>
+    </td>
+  </tr>
+</table>
+
 
 
 ## Getting started with `vectordb` locally
