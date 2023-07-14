@@ -1,18 +1,20 @@
-<p align=center>
+
+![VectorDB from Jina AI logo](.github%2Fimages%2Fvectordb-logo.png)
 <a href="https://pypi.org/project/vectordb/"><img alt="PyPI" src="https://img.shields.io/pypi/v/vectordb?label=Release&style=flat-square"></a>
 <!--<a href="https://codecov.io/gh/jina-ai/vectordb"><img alt="Codecov branch" src="https://img.shields.io/codecov/c/github/jina-ai/vectordb/master?&logo=Codecov&logoColor=white&style=flat-square"></a>-->
 <a href="https://discord.jina.ai"><img src="https://img.shields.io/discord/1106542220112302130?logo=discord&logoColor=white&style=flat-square"></a>
 <a href="https://pypistats.org/packages/vectordb"><img alt="PyPI - Downloads from official pypistats" src="https://img.shields.io/pypi/dm/vectordb?style=flat-square"></a>
 <a href="https://github.com/jina-ai/vectordb/actions/workflows/cd.yml"><img alt="Github CD status" src="https://github.com/jina-ai/vectordb/actions/workflows/cd.yml/badge.svg"></a>
-</p>
 
-# Vector Database for Python Developers
+`vectordb` is a Pythonic vector database offers a comprehensive suite of CRUD (Create, Read, Update, Delete) operations and robust scalability options, including sharding and replication. It's readily deployable in a variety of environments, from local to on-premise and cloud. `vectordb` delivers exactly what you need - no more, no less. It's a testament to effective Pythonic design without over-engineering, making it a lean yet powerful solution for all your needs.
 
-Vector databases store embeddings for semantic similarity between objects, enabling similarity searches across multimodal data types. They enhance LLM applications by providing context and improving generation results.
 
-Meet vectordb: a user-friendly Python solution for creating vector databases with CRUD support. Unlike complex alternatives, vectordb allows easy local deployment while offering scalability features like sharding and replication. Seamlessly transition from a local library to a served database without unnecessary complexity.
 
-vectordb leverages [DocArray](https://github.com/docarray/docarray) retrieval capabilities and [Jina](https://github.com/jina-ai/jina) scalability, reliability, and serving capabilities. In essence, DocArray powers the Vector Search logic while Jina ensures scalable index serving, creating a powerful and user-friendly vector database experience.
+`vectordb` capitalizes on the powerful retrieval prowess of [DocArray](https://github.com/docarray/docarray) and the scalability, reliability, and serving capabilities of [Jina](https://github.com/jina-ai/jina). Here's the magic: DocArray serves as the engine driving vector search logic, while Jina guarantees efficient and scalable index serving. This synergy culminates in a robust, yet user-friendly vector database experience - that's `vectordb` for you.
+
+> **Note** 
+> Vector databases are advanced storage systems for embeddings, capturing semantic relationships between objects. These allow for nuanced similarity searches across diverse data types, enhancing Language Learning Models (LLMs) by improving context understanding and result generation.
+
 
 <!--In simple terms, one can think as [DocArray](https://github.com/docarray/docarray) being a the `Lucene` algorithmic logic for Vector Search powering the retrieval capabilities and [Jina](https://github.com/jina-ai/jina), the ElasticSearch making sure that the indexes are served and scaled for the clients, `vectordb` wraps these technologies to give a powerful and easy to use experience to
 use and develop vector databases.-->
@@ -21,129 +23,92 @@ use and develop vector databases.-->
 
 <!--(THIS CAN BE SHOWN WHEN CUSTOMIZATION IS ENABLED) Stop wondering what exact algorithms do existing solutions apply, how do they apply filtering or how to map your schema to their solutions, with `vectordb` you as a Python developer can easily understand and control what is the vector search algorithm doing, giving you the full control if needed while supporting you for local setting and in more advanced and demanding scenarios in the cloud. -->  
 
-## :muscle: Features
+## Install
 
-- User-friendly interface: `vectordb` offers a simple and intuitive interface, catering to users of all levels of expertise.
+```bash
+pip install vectordb
+```
 
-- Tailored to your needs: `vectordb` provides the necessary features without unnecessary complexity, ensuring a smooth transition from local to server and cloud deployment.
 
-- CRUD support: `vectordb` supports essential CRUD operations, including indexing, searching, updating, and deleting.
 
-- Serve as a service: `vectordb` allows you to serve your databases and perform insertion or searching operations through gRPC, HTTP or Websocket protocols.
+## Getting started with `vectordb` locally
 
-- Scalability: Take advantage of `vectordb's` deployment capabilities to benefit from powerful scalability features such as sharding and replication. Sharding improves service latency, while replication enhances availability and throughput.
-
-- DCloud deployment: Easily deploy your service in the cloud using [Jina AI Cloud](https://cloud.jina.ai/). Stay tuned for upcoming deployment options.
-
-- Serverless capacity: `vectordb` can be deployed in the cloud in serverless mode, allowing you to save resources and have the data available only when needed.
-
-- Multiple ANN algorithms: `vectordb` contains different implementations of ANN algorithms. These are the ones offered so far, we plan to integrate more:
-   - InMemoryExactNNVectorDB (Exact NN Search): Implements Simple Nearest Neighbour Algorithm.   
-   - HNSWVectorDB (based on HNSW): Based on [HNSWLib](https://github.com/nmslib/hnswlib)
-
-<!--(THIS CAN BE SHOWN WHEN FILTER IS ENABLED)- Filter capacity: `vectordb` allows you to have filters on top of the ANN search. -->
-
-<!--(THIS CAN BE SHOWN WHEN FILTER IS ENABLED)- Customizable: `vectordb` can be easily extended to suit your specific needs or schemas, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).-->
-
-## 🏁 Getting Started
-
-To get started with Vector Database, simply follow these easy steps, in this example we are going to use `InMemoryExactNNVectorDB` as example:
-
-1. Install `vectordb`: 
-
-```pip install vectordb```
-
-2. Define your Index Document schema using [DocArray](https://docs.docarray.org/user_guide/representing/first_step/):
+1. Kick things off by defining a Document schema with the [DocArray](https://docs.docarray.org/user_guide/representing/first_step/) dataclass syntax:
 
 ```python
-from docarray import DocList, BaseDoc
+from docarray import BaseDoc
 from docarray.typing import NdArray
 
-class MyTextDoc(BaseDoc):
-    text: str = ''
-    embedding: NdArray[128]
+class ToyDoc(BaseDoc):
+  text: str = ''
+  embedding: NdArray[float, 128]
 ```
 
-Make sure that the schema has a field `schema` as a `tensor` type with shape annotation as in the example.
-
-3. Use any of the pre-built databases with the document schema (InMemoryExactNNVectorDB or HNSWVectorDB): 
+2. Opt for a pre-built database (like `InMemoryExactNNVectorDB` or `HNSWVectorDB`), and apply the schema:
 
 ```python
+from docarray import DocList
 import numpy as np
 from vectordb import InMemoryExactNNVectorDB, HNSWVectorDB
-db = InMemoryExactNNVectorDB[MyTextDoc](workspace='./workspace_path')
 
-db.index(inputs=DocList[MyTextDoc]([MyTextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
-results = db.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128))]), limit=10)
+# Specify your workspace path
+db = InMemoryExactNNVectorDB[ToyDoc](workspace='./workspace_path')
 
-for res in results:
-    print(f'{res.matches}')
+# Index a list of documents with random embeddings
+doc_list = [ToyDoc(text=f'toy doc {i}', embedding=np.random.rand(128)) for i in range(1000)]
+db.index(inputs=DocList[ToyDoc](doc_list))
+
+# Perform a search query
+query = ToyDoc(text='query', embedding=np.random.rand(128))
+results = db.search(inputs=DocList[ToyDoc]([query]), limit=10)
+
+# Print out the matches
+for m in results[0].matches:
+  print(m)
 ```
 
-Each result will contain the matches under the `.matches` attribute as a `DocList[MyTextDoc]`
+Since we issued a single query, `results` contains only one element. The nearest neighbour search results are conveniently stored in the `.matches` attribute.
 
-4. Serve the database as a service with any of these protocols: `gRPC`, `HTTP` and `Webscoket`.
+## Getting started with `vectordb` as a service
+
+`vectordb` is designed to be easily served as a service, supporting `gRPC`, `HTTP`, and `Websocket` communication protocols. 
+
+### Server Side
+
+On the server side, you would start the service as follows:
 
 ```python
-with InMemoryExactNNVectorDB[MyTextDoc].serve(workspace='./db_path', protocol='grpc', port=12345, replicas=1, shards=1) as service:
-   service.index(inputs=DocList[MyTextDoc]([TextDoc(text=f'index {i}', embedding=np.random.rand(128)) for i in range(1000)]))
+with db.serve(protocol='grpc', port=12345, replicas=1, shards=1) as service:
    service.block()
 ```
 
-5. Interact with the database through a client in a similar way as previously:
+This command starts `vectordb` as a service on port `12345`, using the `gRPC` protocol with `1` replica and `1` shard.
+
+### Client Side
+On the client side, you can access the service with the following commands:
 
 ```python
 from vectordb import Client
 
-client = Client[MyTextDoc](address='grpc://0.0.0.0:12345')
-results = client.search(inputs=DocList[MyTextDoc]([MyTextDoc(text='query', embedding=np.random.rand(128))]), limit=10)
+# Instantiate a client connected to the server. In practice, replace 0.0.0.0 to the server IP address.
+client = Client[ToyDoc](address='grpc://0.0.0.0:12345')
+
+# Perform a search query
+results = client.search(inputs=DocList[ToyDoc]([query]), limit=10)
 ```
 
-## CRUD API:
-
-When using `vectordb` as a library or accesing it from a client to a served instance, the Python objects share the exact same API
-to provide `index`, `search`, `update` and `delete` capability:
-
-- `index`: Index gets as input the `DocList` to index.
-
-- `search`: Search gets as input the `DocList` of batched queries or a single `BaseDoc` as single query. It returns a single or multiple results where each query has `matches` and `scores` attributes sorted by `relevance`.
-
-- `delete`: Delete gets as input the `DocList` of documents to delete from the index. The `delete` operation will only care for the `id` attribute, so you need to keep track of the `indexed` `IDs` if you want to delete documents.
-
-- `update`: Delete gets as input the `DocList` of documents to update in the index. The `update` operation will update the `indexed` document with the same Index with the attributes and payload from the input documents.
-
-## :rocket: Serve and scale your own Database, add replication and sharding
-
-### Serving:
-
-In order to enable your `vectordb` served so that it can be accessed from a Client, you can give the following parameters:
-
-- protocol: The protocol to be used for serving, it can be `gRPC`, `HTTP`, `websocket` or any combination of them provided as a list. Defaults to `gRPC`
-
-- port: The port where the service will be accessible, it can be a list of one port for each protocol provided. Default to 8081
-
-- workspace: The workspace is the path used by the VectorDB to hold and persist required data. Defaults to '.' (current directory)
+This allows you to perform a search query, receiving the results directly from the remote `vectordb` service.
 
 
-### Scalability
+## Hosting `vectordb` on Jina AI Cloud
 
-When serving or deploying your Vector Databases you can set 2 scaling parameters and `vectordb`:
+You can seamlessly deploy your `vectordb` instance to Jina AI Cloud, which ensures access to your database from any location.
 
-- Shards: The number of shards in which the data will be split. This will allow for better latency. `vectordb` will make sure that Documents are indexed in only one of the shards, while search request will be sent to all the shards and `vectordb` will make sure to merge the results from all shards.
-
-- Replicas: The number of replicas of the same DB that must exist. The given replication factor will be shared by all the `shards`. `vectordb` uses [RAFT](https://raft.github.io/) algorithm to ensure that the index is in sync between all the replicas of each shard. With this, `vectordb` increases the availability of the service and allows for better search throughput as multiple replicas can respond in parallel to more search requests while allowing CRUD operations. 
-
-** When deployed to JCloud, the number of replicas will be set to 1. We are working to enable replication in the cloud
-
-## 💻 `vectordb` CLI
-
-`vectordb` is a simple CLI that helps you to serve and deploy your `vectordb` db.
-
-First, you need to embed your database instance or class in a python file.
+Start by embedding your database instance or class into a Python file:
 
 ```python
 # example.py
-from docarray import DocList, BaseDoc
+from docarray import BaseDoc
 from docarray.typing import NdArray
 from vectordb import InMemoryExactNNVectorDB
 
@@ -161,24 +126,17 @@ if __name__ == '__main__':
         service.block()
 ```
 
+Next, follow these steps to deploy your instance:
 
-| Description | Command | 
-| --- | ---: |
-| Serve your app locally | `vectordb serve --db example:db` |
-| Deploy your app on JCloud |`vectordb deploy --db example:db` |
+1. If you haven't already, sign up for a [Jina AI Cloud](https://cloud.jina.ai/) account.
 
+2. Use the `jc` command line to login to your Jina AI Cloud account:
 
-## :cloud: Deploy it to the cloud
+```bash
+jc login
+```
 
-`vectordb` allows you to deploy your solution to the cloud easily. 
-
-1. First, you need to get a [Jina AI Cloud](https://cloud.jina.ai/) account
-
-2. Login to your Jina AI Cloud account using the `jc` command line:
-
-```jc login```
-
-3. Deploy:
+3. Deploy your instance:
 
 ```bash
 vectordb deploy --db example:db
@@ -186,75 +144,141 @@ vectordb deploy --db example:db
 
 ![](./.github/images/vectordb_deploy_screenshot.png)
 
-4. Connect from Client
+### Connect from the client
 
-Once deployed, you can use `vectordb` Client to access the given endpoint.
+After deployment, use the `vectordb` Client to access the assigned endpoint:
 
 ```python
 from vectordb import Client
 
-c = Client(address='grpcs://<id>.wolf.jina.ai')
+# replace the ID with the ID of your deployed DB as shown in the screenshot above
+c = Client(address='grpcs://ID.wolf.jina.ai')
 ```
 
-5. Manage your deployed instances using [jcloud](https://github.com/jina-ai/jcloud):
-You can then list and delete your deployed DBs with `jc` command:
+### Manage your deployed instances using [jcloud](https://github.com/jina-ai/jcloud)
 
-```jcloud list <>```
+You can then list, pause, resume or delete your deployed DBs with `jc` command:
+
+```jcloud list ID```
 
 ![](./.github/images/vectordb_deploy_list.png)
 
-```jcloud pause <>``` or ```jcloud resume <>```
+```jcloud pause ID``` or ```jcloud resume ID```
 
 ![](./.github/images/vectordb_deploy_paused.png)
 
-```jcloud remove <>```
+```jcloud remove ID```
    
-## ⚙️ Configure
 
-Here you can find the list of parameters you can use to configure the behavior for each of the `VectorDB` types.
+## Advanced Topics
 
-### InMemoryExactNNVectorDB
+### CRUD Support
 
-This database type does an exhaustive search on the embeddings and therefore has a very limited configuration setting:
+Both the local library usage and the client-server interactions in `vectordb` share the same API. This provides `index`, `search`, `update`, and `delete` functionalities:
 
-- workspace: The folder where the required data will be persisted.
+- `index`: Accepts a `DocList` to index.
+- `search`: Takes a `DocList` of batched queries or a single `BaseDoc` as a single query. It returns either single or multiple results, each with `matches` and `scores` attributes sorted by `relevance`.
+- `delete`: Accepts a `DocList` of documents to remove from the index. Only the `id` attribute is necessary, so make sure to track the `indexed` `IDs` if you need to delete documents.
+- `update`: Accepts a `DocList` of documents to update in the index. The `update` operation will replace the `indexed` document with the same index with the attributes and payload from the input documents.
+
+### Running `vectordb` as a Service
+
+You can serve `vectordb` and access it from a client with the following parameters:
+
+- protocol: The serving protocol. It can be `gRPC`, `HTTP`, `websocket` or a combination of them, provided as a list. Default is `gRPC`.
+- port: The service access port. Can be a list of ports for each provided protocol. Default is 8081.
+- workspace: The path where the VectorDB persists required data. Default is '.' (current directory).
+
+### Scaling Your DB
+
+You can set two scaling parameters when serving or deploying your Vector Databases with `vectordb`:
+
+- Shards: The number of data shards. This improves latency, as `vectordb` ensures Documents are indexed in only one of the shards. Search requests are sent to all shards and results are merged.
+- Replicas: The number of DB replicas. `vectordb` uses the [RAFT](https://raft.github.io/) algorithm to sync the index between replicas of each shard. This increases service availability and search throughput, as multiple replicas can respond in parallel to more search requests while allowing CRUD operations. Note: In JCloud deployments, the number of replicas is set to 1. We're working on enabling replication in the cloud.
+
+### Vector Search Configuration
+
+Here are the parameters for each `VectorDB` type:
+
+#### InMemoryExactNNVectorDB
+
+This database performs exhaustive search on embeddings and has limited configuration settings:
+
+- `workspace`: The folder where required data is persisted.
 
 ```python
 InMemoryExactNNVectorDB[MyDoc](workspace='./vectordb')
 InMemoryExactNNVectorDB[MyDoc].serve(workspace='./vectordb')
 ```
 
-### HNSWVectorDB
+#### HNSWVectorDB
 
-This database implements Approximate Nearest Neighbour based on HNSW algorithm using [HNSWLib](https://github.com/nmslib/hnswlib).
+This database employs the HNSW (Hierarchical Navigable Small World) algorithm from [HNSWLib](https://github.com/nmslib/hnswlib) for Approximate Nearest Neighbor search. It provides several configuration options:
 
-It containes more configuration options:
+- `workspace`: Specifies the directory where required data is stored and persisted.
 
-- workspace: The folder where the required data will be persisted.
- 
-Then a set of configurations that tweak the performance and accuracy of the NN search algorithm. You can find more details in [HNSWLib README](https://github.com/nmslib/hnswlib)
+Additionally, HNSWVectorDB offers a set of configurations that allow tuning the performance and accuracy of the Nearest Neighbor search algorithm. Detailed descriptions of these configurations can be found in the [HNSWLib README](https://github.com/nmslib/hnswlib):
 
-- space: name of the space, related to the similarity metric used (can be one of "l2", "ip", or "cosine"), default: "l2"
-- max_elements: Initial capacity of the index, which is increased dynamically, default: 1024,
-- ef_construction: parameter that controls speed/accuracy trade-off during the index construction, default: 200,
-- ef: parameter controlling query time/accuracy trade-off, default: 10,
-- M: parameter that defines the maximum number of outgoing connections in the graph, default: 16.
-- allow_replace_deleted: enables replacing of deleted elements with new added ones, default: False
-- num_threads: default number of threads to use while `index` and `search` are used, default: 1
+- `space`: Specifies the similarity metric used for the space (options are "l2", "ip", or "cosine"). The default is "l2".
+- `max_elements`: Sets the initial capacity of the index, which can be increased dynamically. The default is 1024.
+- `ef_construction`: This parameter controls the speed/accuracy trade-off during index construction. The default is 200.
+- `ef`: This parameter controls the query time/accuracy trade-off. The default is 10.
+- `M`: This parameter defines the maximum number of outgoing connections in the graph. The default is 16.
+- `allow_replace_deleted`: If set to `True`, this allows replacement of deleted elements with newly added ones. The default is `False`.
+- `num_threads`: This sets the default number of threads to be used during `index` and `search` operations. The default is 1.
 
-## 🛣️ Roadmap
 
-We have big plans for the future of Vector Database! Here are some of the features we have in the works:
 
-- More ANN search algorithms: We want to support more ANN search algorithms.
-- Filter capacity: We want to support filtering for our offered ANN Search solutions.
-- Customizable: We want to make it easy for users to customize the behavior for their specific needs in an easy way for Python developers.
-- Serverless capacity: We're working on adding serverless capacity to `vectordb` in the cloud. We currenly allow to scale between 0 and 1 replica, we aim to offer from 0 to N.
-- More deploying options: We want to enable deploying `vectordb` on different clouds with more options
+### Command line interface
 
-If you need any help with `vectordb`, or you are interested on using it and have some requests to make it fit your own need. don't hesitate to reach out to us. You can join our [Slack community](https://jina.ai/slack) and chat with us and other community members.
+`vectordb` includes a simple CLI for serving and deploying your database:
+
+| Description                     | Command | 
+|---------------------------------| ---: |
+| Serve your DB locally           | `vectordb serve --db example:db` |
+| Deploy your DB on Jina AI Cloud |`vectordb deploy --db example:db` |
+
+
+
+## Features
+
+- **User-friendly Interface:** With `vectordb`, simplicity is key. Its intuitive interface is designed to accommodate users across varying levels of expertise.
+
+- **Minimalistic Design:** `vectordb` packs all the essentials, with no unnecessary complexity. It ensures a seamless transition from local to server and cloud deployment.
+
+- **Full CRUD Support:** From indexing and searching to updating and deleting, `vectordb` covers the entire spectrum of CRUD operations.
+
+- **DB as a Service:** Harness the power of gRPC, HTTP, and Websocket protocols with `vectordb`. It enables you to serve your databases and conduct insertion or searching operations efficiently.
+
+- **Scalability:** Experience the raw power of `vectordb`'s deployment capabilities, including robust scalability features like sharding and replication. Improve your service latency with sharding, while replication enhances availability and throughput.
+
+- **Cloud Deployment:** Deploying your service in the cloud is a breeze with [Jina AI Cloud](https://cloud.jina.ai/). More deployment options are coming soon!
+
+- **Serverless Capability:** `vectordb` can be deployed in a serverless mode in the cloud, ensuring optimal resource utilization and data availability as per your needs.
+
+- **Multiple ANN Algorithms:** `vectordb` offers diverse implementations of Approximate Nearest Neighbors (ANN) algorithms. Here are the current offerings, with more integrations on the horizon:
+   - InMemoryExactNNVectorDB (Exact NN Search): Implements Simple Nearest Neighbor Algorithm.
+   - HNSWVectorDB (based on HNSW): Utilizes [HNSWLib](https://github.com/nmslib/hnswlib)
+
+
+<!--(THIS CAN BE SHOWN WHEN FILTER IS ENABLED)- Filter capacity: `vectordb` allows you to have filters on top of the ANN search. -->
+
+<!--(THIS CAN BE SHOWN WHEN FILTER IS ENABLED)- Customizable: `vectordb` can be easily extended to suit your specific needs or schemas, so you can build the database you want and for any input and output schema you want with the help of [DocArray](https://github.com/docarray/docarray).-->
+
+## Roadmap
+
+The future of Vector Database looks bright, and we have ambitious plans! Here's a sneak peek into the features we're currently developing:
+
+- More ANN Search Algorithms: Our goal is to support an even wider range of ANN search algorithms.
+- Enhanced Filtering Capabilities: We're working on enhancing our ANN Search solutions to support advanced filtering.
+- Customizability: We aim to make `vectordb` highly customizable, allowing Python developers to tailor its behavior to their specific needs with ease.
+- Expanding Serverless Capacity: We're striving to enhance the serverless capacity of `vectordb` in the cloud. While we currently support scaling between 0 and 1 replica, our goal is to extend this to 0 to N replicas.
+- Expanded Deployment Options: We're actively working on facilitating the deployment of `vectordb` across various cloud platforms, with a broad range of options.
+
+Need help with `vectordb`? Interested in using it but require certain features to meet your unique needs? Don't hesitate to reach out to us. Join our [Discord community](https://discord.jina.ai) to chat with us and other community members.
 
 ## Contributing
 
-We welcome contributions from the community! If you have an idea for a new feature or improvement, please let us know. We're always looking for ways to make `vectordb` better for our users.
+Contributions from the community are greatly appreciated! If you have an idea for a new feature or an improvement, we would love to hear from you. We're always looking for ways to make `vectordb` more user-friendly and effective.
+
 
