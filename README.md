@@ -13,7 +13,7 @@
 <a href="https://github.com/jina-ai/vectordb/actions/workflows/cd.yml"><img alt="Github CD status" src="https://github.com/jina-ai/vectordb/actions/workflows/cd.yml/badge.svg"></a>
 </p>
 
-`vectordb` is a Pythonic vector database offers a comprehensive suite of [CRUD](#crud-support) (Create, Read, Update, Delete) operations and robust [scalability options, including sharding and replication](#scaling-your-db). It's readily deployable in a variety of environments, from [local](#getting-started-with-vectordb-locally) to [on-premise](#running-vectordb-as-a-service) and [cloud](#hosting-vectordb-on-jina-ai-cloud). `vectordb` delivers exactly what you need - no more, no less. It's a testament to effective Pythonic design without over-engineering, making it a lean yet powerful solution for all your needs.
+`vectordb` is a Pythonic vector database offers a comprehensive suite of [CRUD](#crud-support) (Create, Read, Update, Delete) operations and robust [scalability options, including sharding and replication](#scaling-your-db). It's readily deployable in a variety of environments, from [local](#getting-started-with-vectordb-locally) to [on-premise](#getting-started-with-vectordb-as-a-service) and [cloud](#hosting-vectordb-on-jina-ai-cloud). `vectordb` delivers exactly what you need - no more, no less. It's a testament to effective Pythonic design without over-engineering, making it a lean yet powerful solution for all your needs.
 
 
 
@@ -44,7 +44,7 @@ pip install vectordb
       </a>
     </td>
     <td>
-      <a href="#running-vectordb-as-a-service">
+      <a href="#getting-started-with-vectordb-as-a-service">
         <img src="https://github.com/jina-ai/vectordb/blob/main/.github%2Fimages%2Fguide-2.png?raw=true" alt="Use vectordb from Jina AI as a service" width="100%">
       </a>
     </td>
