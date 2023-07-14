@@ -1,9 +1,17 @@
-![VectorDB from Jina AI logo](.github%2Fimages%2Fvectordb-logo.png)
+<p align="center">
+<a href="https://docs.jina.ai"><img src="https://github.com/jina-ai/vectordb/blob/main/.github%2Fimages%2Fvectordb-logo.png?raw=true" alt="VectorDB from Jina AI logo" width="300px"></a>
+</p>
 
+<p align="center">
+<b>A Python vector database you just need - no more, no less.</b>
+</p>
+
+<p align=center>
 <a href="https://pypi.org/project/vectordb/"><img alt="PyPI" src="https://img.shields.io/pypi/v/vectordb?label=Release&style=flat-square"></a>
 <a href="https://discord.jina.ai"><img src="https://img.shields.io/discord/1106542220112302130?logo=discord&logoColor=white&style=flat-square"></a>
 <a href="https://pypistats.org/packages/vectordb"><img alt="PyPI - Downloads from official pypistats" src="https://img.shields.io/pypi/dm/vectordb?style=flat-square"></a>
 <a href="https://github.com/jina-ai/vectordb/actions/workflows/cd.yml"><img alt="Github CD status" src="https://github.com/jina-ai/vectordb/actions/workflows/cd.yml/badge.svg"></a>
+</p>
 
 `vectordb` is a Pythonic vector database offers a comprehensive suite of [CRUD](#crud-support) (Create, Read, Update, Delete) operations and robust [scalability options, including sharding and replication](#scaling-your-db). It's readily deployable in a variety of environments, from [local](#getting-started-with-vectordb-locally) to [on-premise](#running-vectordb-as-a-service) and [cloud](#hosting-vectordb-on-jina-ai-cloud). `vectordb` delivers exactly what you need - no more, no less. It's a testament to effective Pythonic design without over-engineering, making it a lean yet powerful solution for all your needs.
 
