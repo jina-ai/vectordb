@@ -12,6 +12,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -238,4 +239,20 @@
 ### 🍹 Other Improvements
 
  - [[```d3d4a43c```](https://github.com/jina-ai/jina/commit/d3d4a43ce382c2526946818ce7f907f8b997bc9d)] __-__ __version__: the next version will be 0.0.15 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-16></a>
+## Release Note (`0.0.16`)
+
+> Release time: 2023-07-19 16:33:59
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🍹 Other Improvements
+
+ - [[```0357cfea```](https://github.com/jina-ai/jina/commit/0357cfead576b237675f1d1f38360a391deb9a3a)] __-__ fix docarray version in deploy (#49) (*Joan Fontanals*)
+ - [[```44856718```](https://github.com/jina-ai/jina/commit/44856718e7ce838cfd7e02f15f82c0d90b815694)] __-__ __version__: the next version will be 0.0.16 (*Jina Dev Bot*)
 
