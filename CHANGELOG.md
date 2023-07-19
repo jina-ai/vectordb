@@ -11,6 +11,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -218,4 +219,23 @@
  - [[```ced29140```](https://github.com/jina-ai/jina/commit/ced291408538c21e5d310cc643c080789b382b4d)] __-__ fix help message serve (#45) (*Joan Fontanals*)
  - [[```7efdc669```](https://github.com/jina-ai/jina/commit/7efdc669ac0cef150e6972f757b9525f66aed52e)] __-__ ignore warnings (#44) (*Deepankar Mahapatro*)
  - [[```8e1ab38b```](https://github.com/jina-ai/jina/commit/8e1ab38b5017feacac1caa64da5a3fc039eb872a)] __-__ __version__: the next version will be 0.0.12 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-15></a>
+## Release Note (`0.0.15`)
+
+> Release time: 2023-07-19 15:17:53
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```497d1ef6```](https://github.com/jina-ai/jina/commit/497d1ef608dba6db73ce96fe1f5f5849a0cb4e0e)] __-__ fix db port for deployment (#48) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```d3d4a43c```](https://github.com/jina-ai/jina/commit/d3d4a43ce382c2526946818ce7f907f8b997bc9d)] __-__ __version__: the next version will be 0.0.15 (*Jina Dev Bot*)
 
