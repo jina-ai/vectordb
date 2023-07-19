@@ -128,6 +128,7 @@ class VectorDB(Generic[TSchema]):
             assert obj_name is not None, 'Trying to create a Jina Object for Deployment without the name of the vectordb object/class to deploy'
             uses = f'{push_vectordb_to_hubble(vectordb_name=obj_name, definition_file_path=definition_file)}'
             use_deployment = False
+            port = 8080
 
         if 'websocket' in protocol_list:  # websocket not supported for Deployment
             use_deployment = False
@@ -148,7 +149,7 @@ class VectorDB(Generic[TSchema]):
                                      workspace=workspace,
                                      polling=polling, **kwargs)
         else:
-            jina_object = Flow(port=port, protocol=protocol, **kwargs).add(name='indexer',
+            jina_object = Flow(port=port, protocol=protocol, env=['JINA_LOG_LEVEL=DEBUG'], **kwargs).add(name='indexer',
                                                                            uses=uses,
                                                                            uses_with=uses_with,
                                                                            shards=shards,
