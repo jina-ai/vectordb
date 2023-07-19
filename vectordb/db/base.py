@@ -193,8 +193,10 @@ class VectorDB(Generic[TSchema]):
         for executor in flow_dict['executors']:
             executor['jcloud'] = executor_jcloud_config
 
+        import docarray
+
         global_jcloud_config = {
-            'docarray': '0.34.0',
+            'docarray': docarray.__version__,
             'labels': {
                 'app': 'vectordb',
             },
@@ -215,10 +217,8 @@ class VectorDB(Generic[TSchema]):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             flow_path = os.path.join(tmpdir, 'flow.yml')
-            print(f' flow_path {flow_path}')
             with open(flow_path, 'w') as f:
                 yaml.safe_dump(flow_dict, f, sort_keys=False)
-
             cloud_flow = CloudFlow(path=flow_path)
 
             async def _deploy():
