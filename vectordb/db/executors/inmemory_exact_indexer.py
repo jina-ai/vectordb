@@ -26,6 +26,16 @@ class InMemoryExactNNIndexer(TypedExecutor):
         self.logger.debug(f'Index {len(docs)}')
         return self._index(docs, *args, **kwargs)
 
+    @write
+    @requests(on='/push')
+    def push(self, docs, *args, **kwargs):
+        self.logger.debug(f'Push {len(docs)}')
+        return self._index(docs, *args, **kwargs)
+
+    @requests(on='/build')
+    def build(self, *args, **kwargs):
+        self.logger.debug(f'Build call has no effect in InMemoryExactNNIndexer.')
+
     def _search(self, docs, parameters, *args, **kwargs):
         from docarray import DocList
         res = DocList[self._output_schema]()

@@ -235,6 +235,14 @@ class VectorDB(Generic[TSchema]):
 
     @pass_kwargs_as_params
     @unify_input_output
+    def push(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
+        return self._executor.push(docs, parameters)
+
+    def build(self,  **kwargs):
+        return self._executor.push(**kwargs)
+
+    @pass_kwargs_as_params
+    @unify_input_output
     def update(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
         return self._executor.update(docs, parameters)
 

@@ -4,6 +4,7 @@ import string
 from typing import TYPE_CHECKING
 
 import numpy as np
+from more_itertools import chunked
 from vectordb.db.executors.typed_executor import TypedExecutor
 from jina.serve.executors.decorators import requests, write
 
@@ -35,6 +36,7 @@ class HNSWLibIndexer(TypedExecutor):
                                                               'M': M,
                                                               'allow_replace_deleted': allow_replace_deleted,
                                                               'num_threads': num_threads})
+        self._pushed_docs = DocList[self._input_schema]()
         db_conf.work_dir = self.work_dir
         self._indexer = HnswDocumentIndex[self._input_schema](db_config=db_conf)
 
@@ -44,6 +46,10 @@ class HNSWLibIndexer(TypedExecutor):
 
     def index(self, docs, *args, **kwargs):
         self.logger.debug(f'Index {len(docs)}')
+        if len(self._pushed_docs) > 0:
+            self.logger.debug(f'{len(self._pushed_docs)} were waiting to be indexed. Indexing them')
+            self._index(self._pushed_docs)
+            self._pushed_docs.clear()
         return self._index(docs)
 
     @write
@@ -87,6 +93,19 @@ class HNSWLibIndexer(TypedExecutor):
     def delete(self, docs, *args, **kwargs):
         self.logger.debug(f'Delete')
         return self._delete(docs, *args, **kwargs)
+
+    @write
+    @requests(on='/push')
+    def push(self, docs, *args, **kwargs):
+        self.logger.debug(f'Push {len(docs)}')
+        self._pushed_docs.extend(docs)
+
+    @write
+    @requests(on='/build')
+    def build(self, *args, **kwargs):
+        self.logger.debug(f'Building index with {len(self._pushed_docs)} pushed docs')
+        self._index(self._pushed_docs, *args, **kwargs)
+        self._pushed_docs.clear()
 
     @write
     @requests(on='/delete')

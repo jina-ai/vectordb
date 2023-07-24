@@ -14,7 +14,7 @@ TSchema = TypeVar('TSchema', bound='BaseDoc')
 InputSchema = TypeVar('InputSchema', bound='BaseDoc')
 OutputSchema = TypeVar('OutputSchema', bound='BaseDoc')
 
-methods = ['/index', '/update', '/delete', '/search']
+methods = ['/index', '/update', '/delete', '/search', '/push', '/build']
 
 
 class TypedExecutor(Executor, Generic[InputSchema, OutputSchema]):

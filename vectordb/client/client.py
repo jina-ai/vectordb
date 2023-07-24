@@ -54,6 +54,14 @@ class Client(Generic[TSchema]):
     def index(self, *args, **kwargs):
         return self._client.index(*args, **kwargs)
 
+    @unify_input_output
+    @pass_kwargs_as_params
+    def push(self, *args, **kwargs):
+        return self._client.post(on='/push', *args, **kwarg)
+
+    def build(self, *args, **kwargs):
+        return self._client.post(on='/build', *args, **kwarg)
+
     @sort_matches_by_scores
     @unify_input_output
     @pass_kwargs_as_params
