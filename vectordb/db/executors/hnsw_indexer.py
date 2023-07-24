@@ -25,6 +25,7 @@ class HNSWLibIndexer(TypedExecutor):
                  num_threads=1,
                  *args, **kwargs):
         from docarray.index import HnswDocumentIndex
+        from docarray import DocList
         super().__init__(*args, **kwargs)
         workspace = self.workspace.replace('[', '_').replace(']', '_')
         self.work_dir = f'{workspace}' if self.handle_persistence else f'{workspace}/{"".join(random.choice(string.ascii_lowercase) for _ in range(5))}'
