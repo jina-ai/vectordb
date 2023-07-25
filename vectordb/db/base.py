@@ -85,7 +85,7 @@ class VectorDB(Generic[TSchema]):
             ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
                                   {})
             uses = ServedExecutor
-        polling = {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL'}
+        polling = {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL', '/push': 'ANY', '/build': 'ALL'}
         if to_deploy and replicas > 1:
             import warnings
             warnings.warn(
@@ -163,9 +163,9 @@ class VectorDB(Generic[TSchema]):
               **kwargs):
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
-        uses_with = kwargs.get('uses_with', {})
+        uses_with = kwargs.pop('uses_with', {})
         uses_with.update(self._uses_with)
-        workspace = kwargs.get('workspace', self._workspace)
+        workspace = kwargs.pop('workspace', self._workspace)
         ctxt_manager = self._get_jina_object(to_deploy=False, port=port, protocol=protocol, workspace=workspace,
                                              uses_with=uses_with, **kwargs)
         port = port[0] if isinstance(port, list) else port
@@ -178,7 +178,7 @@ class VectorDB(Generic[TSchema]):
         import os
         import yaml
         from yaml.loader import SafeLoader
-        uses_with = kwargs.get('uses_with', {})
+        uses_with = kwargs.pop('uses_with', {})
         uses_with.update(self._uses_with)
         jina_obj = self._get_jina_object(to_deploy=True, uses_with=uses_with, **kwargs)
 

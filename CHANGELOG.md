@@ -13,6 +13,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -255,4 +256,27 @@
 
  - [[```0357cfea```](https://github.com/jina-ai/jina/commit/0357cfead576b237675f1d1f38360a391deb9a3a)] __-__ fix docarray version in deploy (#49) (*Joan Fontanals*)
  - [[```44856718```](https://github.com/jina-ai/jina/commit/44856718e7ce838cfd7e02f15f82c0d90b815694)] __-__ __version__: the next version will be 0.0.16 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-17></a>
+## Release Note (`0.0.17`)
+
+> Release time: 2023-07-25 02:37:14
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```a48f341c```](https://github.com/jina-ai/jina/commit/a48f341c8f5fc13ae70144fca9f73ec6de1764d0)] __-__ fix applying serve and deploy on instance (#53) (*Joan Fontanals*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```e0c9921c```](https://github.com/jina-ai/jina/commit/e0c9921c3b720d799bf6f99582a6d2eeb5c1ffee)] __-__ optout telemetry in test (#50) (*Joan Fontanals*)
+
+### 🍹 Other Improvements
+
+ - [[```be1f72da```](https://github.com/jina-ai/jina/commit/be1f72da50c06982ed9abcedcb5db75dc9faf32f)] __-__ __version__: the next version will be 0.0.17 (*Jina Dev Bot*)
 
