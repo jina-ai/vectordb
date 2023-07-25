@@ -52,7 +52,10 @@ class VectorDB(Generic[TSchema]):
             self._workspace = kwargs['work_dir']
         if 'workspace' in kwargs:
             self._workspace = kwargs['workspace']
-        self._uses_with = kwargs
+        self._uses_with = {}
+        self._uses_with.update(**kwargs)
+        if 'workspace' in self._uses_with:
+            self._uses_with.pop('workspace')
         kwargs['requests'] = REQUESTS_MAP
         kwargs['runtime_args'] = {'workspace': self._workspace}
         self._executor = self._executor_cls(*args, **kwargs)
@@ -72,14 +75,6 @@ class VectorDB(Generic[TSchema]):
                          obj_name: Optional[str] = None,
                          **kwargs):
         from jina import Deployment, Flow
-        is_instance = False
-        uses_with = uses_with or {}
-        if isinstance(cls, VectorDB):
-            is_instance = True
-            uses_with = uses_with.update(**cls._uses_with)
-
-        if is_instance:
-            workspace = workspace or cls._workspace
         replicas = replicas or 1
         shards = shards or 1
         protocol = protocol or 'grpc'
@@ -150,38 +145,42 @@ class VectorDB(Generic[TSchema]):
                                      polling=polling, **kwargs)
         else:
             jina_object = Flow(port=port, protocol=protocol, env=['JINA_LOG_LEVEL=DEBUG'], **kwargs).add(name='indexer',
-                                                                           uses=uses,
-                                                                           uses_with=uses_with,
-                                                                           shards=shards,
-                                                                           replicas=replicas,
-                                                                           stateful=stateful,
-                                                                           peer_ports=peer_ports,
-                                                                           polling=polling,
-                                                                           workspace=workspace)
+                                                                                                         uses=uses,
+                                                                                                         uses_with=uses_with,
+                                                                                                         shards=shards,
+                                                                                                         replicas=replicas,
+                                                                                                         stateful=stateful,
+                                                                                                         peer_ports=peer_ports,
+                                                                                                         polling=polling,
+                                                                                                         workspace=workspace)
 
         return jina_object
 
-    @classmethod
-    def serve(cls,
+    def serve(self,
               *,
               port: Optional[Union[str, List[str]]] = 8081,
               protocol: Optional[Union[str, List[str]]] = None,
               **kwargs):
         protocol = protocol or 'grpc'
         protocol_list = [p.lower() for p in protocol] if isinstance(protocol, list) else [protocol.lower()]
-        ctxt_manager = cls._get_jina_object(to_deploy=False, port=port, protocol=protocol, **kwargs)
+        uses_with = kwargs.pop('uses_with', {})
+        uses_with.update(self._uses_with)
+        workspace = kwargs.pop('workspace', self._workspace)
+        ctxt_manager = self._get_jina_object(to_deploy=False, port=port, protocol=protocol, workspace=workspace,
+                                             uses_with=uses_with, **kwargs)
         port = port[0] if isinstance(port, list) else port
-        return Service(ctxt_manager, address=f'{protocol_list[0]}://0.0.0.0:{port}', schema=cls._input_schema,
-                       reverse_order=cls.reverse_score_order)
+        return Service(ctxt_manager, address=f'{protocol_list[0]}://0.0.0.0:{port}', schema=self._input_schema,
+                       reverse_order=self.reverse_score_order)
 
-    @classmethod
-    def deploy(cls,
+    def deploy(self,
                **kwargs):
         from tempfile import mkdtemp
         import os
         import yaml
         from yaml.loader import SafeLoader
-        jina_obj = cls._get_jina_object(to_deploy=True, **kwargs)
+        uses_with = kwargs.pop('uses_with', {})
+        uses_with.update(self._uses_with)
+        jina_obj = self._get_jina_object(to_deploy=True, uses_with=uses_with, **kwargs)
 
         tmpdir = mkdtemp()
         jina_obj.save_config(os.path.join(tmpdir, 'flow.yml'))
