@@ -1,2 +1,2 @@
-jina>=3.19.0
+jina>=3.20.0
 docarray[hnswlib]>=0.34.0
