@@ -16,7 +16,6 @@ OutputSchema = TypeVar('OutputSchema', bound='BaseDoc')
 
 methods = ['/index', '/update', '/delete', '/search']
 
-
 class TypedExecutor(Executor, Generic[InputSchema, OutputSchema]):
     # the BaseDoc that defines the schema of the store
     # for subclasses this is filled automatically
@@ -30,11 +29,23 @@ class TypedExecutor(Executor, Generic[InputSchema, OutputSchema]):
         for k, v in self._requests.items():
             if k != __dry_run_endpoint__:
                 if k != '/search':
-                    self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
-                                                            DocList[self._input_schema])
+                    self._requests[k] = _FunctionWithSchema(fn=self._requests[k].fn,
+                                                            is_generator=self._requests[k].is_generator,
+                                                            is_batch_docs=self._requests[k].is_batch_docs,
+                                                            is_singleton_doc=self._requests[k].is_singleton_doc,
+                                                            parameters_is_pydantic_model=self._requests[k].parameters_is_pydantic_model,
+                                                            parameters_model=self._requests[k].parameters_model,
+                                                            request_schema=DocList[self._input_schema],
+                                                            response_schema=DocList[self._input_schema])
                 else:
-                    self._requests[k] = _FunctionWithSchema(self._requests[k].fn, DocList[self._input_schema],
-                                                            DocList[self._output_schema])
+                    self._requests[k] = _FunctionWithSchema(fn=self._requests[k].fn,
+                                                            is_generator=self._requests[k].is_generator,
+                                                            is_batch_docs=self._requests[k].is_batch_docs,
+                                                            is_singleton_doc=self._requests[k].is_singleton_doc,
+                                                            parameters_is_pydantic_model=self._requests[k].parameters_is_pydantic_model,
+                                                            parameters_model=self._requests[k].parameters_model,
+                                                            request_schema=DocList[self._input_schema],
+                                                            response_schema=DocList[self._output_schema])
 
     @property
     def handle_persistence(self):
