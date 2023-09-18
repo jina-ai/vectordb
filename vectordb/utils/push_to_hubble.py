@@ -11,7 +11,7 @@ from pathlib import Path
 __resources_path__ = os.path.join(
     Path(os.path.dirname(sys.modules['vectordb'].__file__)).parent.absolute(), 'resources'
 )
-
+API_URL = "https://apihubble.jina.ai/v2/executor/getMeta?id={id}&tag={tag}"
 
 class EnvironmentVarCtxtManager:
     """a class to wrap env vars"""
@@ -44,18 +44,20 @@ def get_uri(id: str, tag: str):
     import requests
     from hubble import Auth
 
-    r = requests.get(
-        f"https://apihubble.jina.ai/v2/executor/getMeta?id={id}&tag={tag}",
-        headers={"Authorization": f"token {Auth.get_auth_token()}"},
-    )
-    _json = r.json()
-    if _json is None:
-        print(f'Could not find image with id {id} and tag {tag}')
-        return
-    _image_name = _json['data']['name']
-    _user_name = _json['meta']['owner']['name']
-    return f'jinaai+docker://{_user_name}/{_image_name}:{tag}'
+    headers = {"Authorization": f"token {Auth.get_auth_token()}"}
+    response = requests.get(API_URL.format(id=id, tag=tag), headers=headers)
 
+    if response.status_code != 200:
+        raise Exception(f"Request failed with status code {response.status_code}")
+
+    response_json = response.json()
+
+    if response_json is None:
+        raise Exception(f'Could not find image with id {id} and tag {tag}')
+
+    image_name = response_json['data']['name']
+    user_name = response_json['meta']['owner']['name']
+    return f'jinaai+docker://{user_name}/{image_name}:{tag}'
 
 def get_random_tag():
     return 't-' + uuid.uuid4().hex[:5]
