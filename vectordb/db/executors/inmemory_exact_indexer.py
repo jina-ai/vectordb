@@ -71,7 +71,7 @@ class InMemoryExactNNIndexer(TypedExecutor):
         return self._index(docs)
 
     def num_docs(self, *args, **kwargs):
-        return {'num_docs': self._index.num_docs()}
+        return {'num_docs': self._indexer.num_docs()}
 
     def snapshot(self, snapshot_dir):
         snapshot_file = f'{snapshot_dir}/index.bin'
