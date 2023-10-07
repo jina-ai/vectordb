@@ -170,3 +170,10 @@ def test_hnswlib_vectordb_restore(docs_to_index, tmpdir):
         # assert res.id == res.matches[0].id
         # assert res.text == res.matches[0].text
         # assert res.scores[0] < 0.001 # some precision issues, should be 0
+
+def test_hnswlib_num_dos(tmpdir):
+    db = HNSWVectorDB[MyDoc](workspace=str(tmpdir))
+    doc_list = [MyDoc(text=f'toy doc {i}', embedding=np.random.rand(128)) for i in range(1000)]
+    db.index(inputs=DocList[MyDoc](doc_list))
+    x=db.num_docs()
+    assert x['num_docs']==1000
