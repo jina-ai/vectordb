@@ -227,6 +227,9 @@ class VectorDB(Generic[TSchema]):
             ret = asyncio.run(_deploy())
         return ret
 
+    def num_docs(self, **kwargs):
+        return self._executor.num_docs()
+    
     @pass_kwargs_as_params
     @unify_input_output
     def index(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):

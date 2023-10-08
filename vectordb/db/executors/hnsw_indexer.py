@@ -105,7 +105,7 @@ class HNSWLibIndexer(TypedExecutor):
         return self.update(docs, *args, **kwargs)
 
     def num_docs(self, **kwargs):
-        return {'num_docs': self._index.num_docs()}
+        return {'num_docs': self._indexer.num_docs()}
 
     def snapshot(self, snapshot_dir):
         # TODO: Maybe copy the work_dir to workspace if `handle` is False
