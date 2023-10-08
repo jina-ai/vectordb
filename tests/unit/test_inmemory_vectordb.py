@@ -179,3 +179,12 @@ def test_inmemory_num_dos(tmpdir):
     db.index(inputs=DocList[MyDoc](doc_list))
     x=db.num_docs()
     assert x['num_docs']==1000
+
+def test_hnswlib_queryid(tmpdir):
+    db = InMemoryExactNNVectorDB[MyDoc](workspace=str(tmpdir))
+    doc_list = [MyDoc(id='test_1',text=f'test', embedding=np.random.rand(128)) ]
+    db.index(inputs=DocList[MyDoc](doc_list))
+    queryobjtest1=db.queryid('test_1')
+    queryobjtest2=db.queryid('test_2')
+    assert queryobjtest2 is None
+    assert queryobjtest1.id=='test_1'
