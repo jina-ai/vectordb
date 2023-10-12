@@ -180,7 +180,7 @@ def test_inmemory_num_dos(tmpdir):
     x=db.num_docs()
     assert x['num_docs']==1000
 
-def test_hnswlib_queryid(tmpdir):
+def test_inmemory_queryid(tmpdir):
     db = InMemoryExactNNVectorDB[MyDoc](workspace=str(tmpdir))
     doc_list = [MyDoc(id='test_1',text=f'test', embedding=np.random.rand(128)) ]
     db.index(inputs=DocList[MyDoc](doc_list))
