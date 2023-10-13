@@ -107,8 +107,8 @@ class HNSWLibIndexer(TypedExecutor):
     def num_docs(self, **kwargs):
         return {'num_docs': self._indexer.num_docs()}
     
-    def queryid(self,infoid,**kwargs):
-        return  self._indexer[infoid]
+    def get_by_id(self,info_id,**kwargs):
+        return  self._indexer[info_id]
     
     def snapshot(self, snapshot_dir):
         # TODO: Maybe copy the work_dir to workspace if `handle` is False
