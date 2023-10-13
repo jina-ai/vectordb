@@ -230,7 +230,7 @@ class VectorDB(Generic[TSchema]):
     def num_docs(self, **kwargs):
         return self._executor.num_docs()
 
-    def queryid(self,info_id, **kwargs):
+    def get_by_id(self,info_id, **kwargs):
        ret=None
        try:
            ret=self._executor.get_by_id(info_id)
