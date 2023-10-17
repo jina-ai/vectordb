@@ -229,6 +229,14 @@ class VectorDB(Generic[TSchema]):
 
     def num_docs(self, **kwargs):
         return self._executor.num_docs()
+
+    def get_by_id(self,info_id, **kwargs):
+        ret = None
+        try:
+            ret = self._executor.get_by_id(info_id)
+        except KeyError:
+            pass 
+        return ret
     
     @pass_kwargs_as_params
     @unify_input_output
