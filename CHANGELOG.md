@@ -16,6 +16,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -316,4 +317,23 @@
 
  - [[```059dc489```](https://github.com/jina-ai/jina/commit/059dc489b4e2c698ef8e71811eafee2c7a0ae500)] __-__ add num_docs (#62) (*0x376h*)
  - [[```35cbf73a```](https://github.com/jina-ai/jina/commit/35cbf73a355e33667e66d9949c8ef58e28a10bd1)] __-__ __version__: the next version will be 0.0.19 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-20></a>
+## Release Note (`0.0.20`)
+
+> Release time: 2023-10-23 10:26:48
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ 0x376h,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```5f8fc998```](https://github.com/jina-ai/jina/commit/5f8fc998c8c6b29553bff2146bc64166072f8b6a)] __-__ dd method  queryid  to check id exists (#63) (*0x376h*)
+
+### 🍹 Other Improvements
+
+ - [[```a4308081```](https://github.com/jina-ai/jina/commit/a43080813c53c62f86f29083fab5f1a104c27388)] __-__ __version__: the next version will be 0.0.20 (*Jina Dev Bot*)
 
