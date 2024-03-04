@@ -12,7 +12,7 @@ def _ignore_warnings():
 
 _ignore_warnings()
 
-__version__ = '0.0.21'
+__version__ = '0.0.22'
 
 from vectordb.client import Client
 from vectordb.db.hnsw_vectordb import HNSWVectorDB

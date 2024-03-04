@@ -17,6 +17,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -336,4 +337,23 @@
 ### 🍹 Other Improvements
 
  - [[```a4308081```](https://github.com/jina-ai/jina/commit/a43080813c53c62f86f29083fab5f1a104c27388)] __-__ __version__: the next version will be 0.0.20 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-21></a>
+## Release Note (`0.0.21`)
+
+> Release time: 2024-03-04 17:10:02
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Gabe Goodhart,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```f0200e58```](https://github.com/jina-ai/jina/commit/f0200e58721549e009dd872c21642d44c7082177)] __-__ handle missing __validators__ (#68) (*Gabe Goodhart*)
+
+### 🍹 Other Improvements
+
+ - [[```53cd4a54```](https://github.com/jina-ai/jina/commit/53cd4a54d8d8411170e9b384feed8ede2f75b423)] __-__ __version__: the next version will be 0.0.21 (*Jina Dev Bot*)
 
