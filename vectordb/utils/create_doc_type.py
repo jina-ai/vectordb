@@ -15,7 +15,8 @@ def create_output_doc_type(input_doc_type: Type['BaseDoc']):
     return create_model(
         input_doc_type.__name__ + 'WithMatchesAndScores',
         __base__=input_doc_type,
-        __validators__=input_doc_type.__validators__,
+        # NOTE: With pydantic>=2, __validators__ does not exist
+        __validators__=getattr(input_doc_type, "__validators__", None),
         matches=(DocList[input_doc_type], []),
         scores=(List[float], [])
     )
