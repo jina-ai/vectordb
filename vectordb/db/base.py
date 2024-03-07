@@ -85,7 +85,7 @@ class VectorDB(Generic[TSchema]):
             ServedExecutor = type(f'{executor_cls_name.replace("[", "").replace("]", "")}', (cls._executor_cls,),
                                   {})
             uses = ServedExecutor
-        polling = {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL'}
+        polling = {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL', '/push': 'ANY', '/build': 'ALL'}
         if to_deploy and replicas > 1:
             import warnings
             warnings.warn(
@@ -242,6 +242,14 @@ class VectorDB(Generic[TSchema]):
     @unify_input_output
     def index(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
         return self._executor.index(docs, parameters)
+
+    @pass_kwargs_as_params
+    @unify_input_output
+    def push(self, docs: 'DocList[TSchema]', parameters: Optional[Dict] = None, **kwargs):
+        return self._executor.push(docs, parameters)
+
+    def build(self, **kwargs):
+        return self._executor.push(**kwargs)
 
     @pass_kwargs_as_params
     @unify_input_output
